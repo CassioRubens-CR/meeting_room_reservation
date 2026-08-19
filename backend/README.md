@@ -108,4 +108,41 @@ npx prisma generate
 
 - Doc - [https://www.prisma.io/docs] 
 
+## Migrations do banco de dados
+
+As migrations registram no Git cada alteração feita no modelo do banco. Elas devem ser criadas sempre que o arquivo `prisma/schema.prisma` for alterado.
+
+### Criar uma migration
+
+```bash
+npx prisma migrate dev --name nome-da-alteracao
+```
+
+Esse comando compara o schema com o banco local, gera o SQL da alteração, aplica a migration no banco SQLite de desenvolvimento e atualiza o Prisma Client quando necessário.
+
+Não é necessário executar esse comando ao iniciar o projeto. Ele deve ser usado somente depois de uma alteração no schema.
+
+### Comandos relacionados
+
+```bash
+# Verifica se o schema é válido
+npx prisma validate
+
+# Regenera o Prisma Client
+npx prisma generate
+
+# Cria uma migration e aplica no banco de desenvolvimento
+npx prisma migrate dev --name nome-da-alteracao
+```
+
+Para mudanças permanentes no modelo, prefira `migrate dev` em vez de `prisma db push`, pois a migration mantém um histórico versionado e reproduzível.
+
+### Fluxo recomendado
+
+1. Alterar `prisma/schema.prisma`.
+2. Validar o schema com `npx prisma validate`.
+3. Criar a migration com `npx prisma migrate dev --name nome-da-alteracao`.
+4. Verificar a aplicação e os testes.
+5. Commitar o schema e a pasta `prisma/migrations/` juntos.
+
 
