@@ -102,6 +102,8 @@ Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
 ```bash
 # validate
 npx prisma validate
+# create or update Prisma Client
+npx prisma generate
 ```
 
 - Doc - [https://www.prisma.io/docs] 
