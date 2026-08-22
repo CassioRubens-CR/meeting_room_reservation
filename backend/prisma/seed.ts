@@ -32,7 +32,7 @@ async function main() {
   // Create rooms
   const room1 = await prisma.room.create({
     data: {
-      name: 'Meeting Room A',
+      name: 'Sala de Reunião A',
       capacity: 10,
       location: '1st Floor',
     },
@@ -40,7 +40,7 @@ async function main() {
 
   const room2 = await prisma.room.create({
     data: {
-      name: 'Meeting Room B',
+      name: 'Sala de Reunião B',
       capacity: 20,
       location: '2nd Floor',
     },
