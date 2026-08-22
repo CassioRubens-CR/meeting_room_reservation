@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store'
 
@@ -8,6 +9,7 @@ interface LayoutProps {
 export function Layout({ children }: LayoutProps) {
   const navigate = useNavigate()
   const { user, logout } = useAuthStore()
+  const [menuOpen, setMenuOpen] = useState(false)
 
   const handleLogout = () => {
     logout()
@@ -19,11 +21,20 @@ export function Layout({ children }: LayoutProps) {
       {/* Header */}
       <header className="border-b border-stone-200 bg-white shadow-sm">
         <div className="mx-auto flex max-w-7xl items-center justify-between p-4 sm:px-6 sm:py-4">
-          <div>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              aria-label={menuOpen ? 'Fechar menu' : 'Abrir menu'}
+              aria-expanded={menuOpen}
+              onClick={() => setMenuOpen((isOpen) => !isOpen)}
+              className="order-first min-h-11 min-w-11 rounded-lg border border-stone-300 px-3 py-2 text-xl leading-none text-stone-700 transition-colors hover:bg-stone-100 sm:hidden"
+            >
+              {menuOpen ? '×' : '☰'}
+            </button>
             <p className="text-xs font-medium uppercase tracking-wider text-brand-700 sm:text-sm">
               Meeting Room Reservation
             </p>
-            <nav className="mt-2 flex gap-3 text-xs font-medium text-stone-600 sm:gap-4 sm:text-sm">
+            <nav className="hidden gap-3 text-xs font-medium text-stone-600 sm:ml-6 sm:flex sm:gap-4 sm:text-sm">
               <Link to="/dashboard" className="hover:text-brand-700">
                 Dashboard
               </Link>
@@ -52,6 +63,42 @@ export function Layout({ children }: LayoutProps) {
             </button>
           </div>
         </div>
+        {menuOpen && (
+          <nav className="border-t border-stone-200 px-4 py-3 sm:hidden">
+            <div className="mx-auto flex max-w-7xl flex-col gap-1 text-sm font-medium text-stone-700">
+              <Link
+                to="/dashboard"
+                onClick={() => setMenuOpen(false)}
+                className="rounded-lg px-3 py-3 hover:bg-brand-50 hover:text-brand-700"
+              >
+                Dashboard
+              </Link>
+              <Link
+                to="/rooms"
+                onClick={() => setMenuOpen(false)}
+                className="rounded-lg px-3 py-3 hover:bg-brand-50 hover:text-brand-700"
+              >
+                Salas
+              </Link>
+              <Link
+                to="/reservations"
+                onClick={() => setMenuOpen(false)}
+                className="rounded-lg px-3 py-3 hover:bg-brand-50 hover:text-brand-700"
+              >
+                Reservas
+              </Link>
+              {user?.role === 'ADMIN' && (
+                <Link
+                  to="/admin/rooms"
+                  onClick={() => setMenuOpen(false)}
+                  className="rounded-lg px-3 py-3 hover:bg-brand-50 hover:text-brand-700"
+                >
+                  Administração
+                </Link>
+              )}
+            </div>
+          </nav>
+        )}
       </header>
 
       {/* Main Content */}
