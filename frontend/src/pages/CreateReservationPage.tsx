@@ -19,7 +19,7 @@ function getDurationInMinutes(startTime: string, endTime: string) {
 export function CreateReservationPage() {
   const navigate = useNavigate()
   const { roomId } = useParams<{ roomId: string }>()
-  const { token } = useAuthStore()
+  const { token, user } = useAuthStore()
   const {
     rooms,
     loading: roomsLoading,
@@ -34,9 +34,12 @@ export function CreateReservationPage() {
   const [date, setDate] = useState(getToday)
   const [startTime, setStartTime] = useState('09:00')
   const [endTime, setEndTime] = useState('10:00')
+  const [attendeesCount, setAttendeesCount] = useState(1)
+  const [justification, setJustification] = useState('')
   const [validationError, setValidationError] = useState<string | null>(null)
 
   const room = rooms.find((availableRoom) => availableRoom.id === roomId)
+  const isAdmin = user?.role === 'ADMIN'
 
   useEffect(() => {
     clearError()
@@ -60,7 +63,17 @@ export function CreateReservationPage() {
     }
 
     try {
-      await createReservation({ roomId, date, startTime, endTime }, token)
+      await createReservation(
+        {
+          roomId,
+          date,
+          startTime,
+          endTime,
+          attendeesCount,
+          justification: justification.trim() || undefined,
+        },
+        token,
+      )
       navigate('/rooms')
     } catch {
       // API error is exposed by the reservations store.
@@ -172,6 +185,44 @@ export function CreateReservationPage() {
                 />
               </div>
             </div>
+
+            {isAdmin && (
+              <div>
+              <label htmlFor="attendeesCount" className="block text-sm font-medium text-stone-700">
+                Participantes
+              </label>
+              <input
+                id="attendeesCount"
+                type="number"
+                min="1"
+                max={room.capacity}
+                value={attendeesCount}
+                onChange={(event) => setAttendeesCount(Number(event.target.value))}
+                required
+                disabled={reservationLoading}
+                className="mt-1 min-h-11 w-full rounded-lg border border-stone-300 px-3 py-3 text-sm text-stone-900 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 disabled:bg-stone-50"
+              />
+              <p className="mt-1 text-xs text-stone-500">Capacidade da sala: {room.capacity} lugares</p>
+              </div>
+            )}
+
+            {isAdmin && attendeesCount > 1 && (
+              <div>
+                <label htmlFor="justification" className="block text-sm font-medium text-stone-700">
+                  Justificativa
+                </label>
+                <textarea
+                  id="justification"
+                  value={justification}
+                  onChange={(event) => setJustification(event.target.value)}
+                  required
+                  disabled={reservationLoading}
+                  rows={3}
+                  placeholder="Informe a finalidade da ocupação das vagas."
+                  className="mt-1 w-full resize-y rounded-lg border border-stone-300 px-3 py-3 text-sm text-stone-900 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 disabled:bg-stone-50"
+                />
+              </div>
+            )}
 
             <button
               type="submit"

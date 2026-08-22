@@ -6,6 +6,8 @@ export interface CreateReservationInput {
   date: string
   startTime: string
   endTime: string
+  attendeesCount: number
+  justification?: string
 }
 
 export interface UpdateReservationInput {
@@ -13,6 +15,8 @@ export interface UpdateReservationInput {
   date?: string
   startTime?: string
   endTime?: string
+  attendeesCount?: number
+  justification?: string
 }
 
 export function fetchMyReservations(token: string) {

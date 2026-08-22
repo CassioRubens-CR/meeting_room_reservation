@@ -161,7 +161,20 @@ export function MyReservationsPage() {
                         {formatTime(reservation.startTime)} às {formatTime(reservation.endTime)}
                       </p>
                     </div>
+                    <div>
+                      <p className="text-xs text-stone-500">Participantes</p>
+                      <p className="mt-1 font-medium text-stone-800">
+                        {reservation.attendeesCount ?? 1}
+                      </p>
+                    </div>
                   </div>
+
+                  {reservation.justification && (
+                    <p className="mb-4 text-sm text-stone-600">
+                      <span className="font-medium text-stone-800">Justificativa:</span>{' '}
+                      {reservation.justification}
+                    </p>
+                  )}
 
                   <button
                     type="button"

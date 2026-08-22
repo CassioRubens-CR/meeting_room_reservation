@@ -12,6 +12,8 @@ interface CreateReservationPayload {
   date: string
   startTime: string
   endTime: string
+  attendeesCount: number
+  justification?: string
 }
 
 interface UpdateReservationPayload {
@@ -19,6 +21,8 @@ interface UpdateReservationPayload {
   date?: string
   startTime?: string
   endTime?: string
+  attendeesCount?: number
+  justification?: string
 }
 
 interface ReservationsStore {

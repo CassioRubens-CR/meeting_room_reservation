@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { startTransition, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Layout } from '../components'
 import { useAuthStore, useReservationsStore, useRoomsStore } from '../store'
@@ -27,7 +27,7 @@ function getToday() {
 export function EditReservationPage() {
   const navigate = useNavigate()
   const { reservationId } = useParams<{ reservationId: string }>()
-  const { token } = useAuthStore()
+  const { token, user } = useAuthStore()
   const { rooms, fetchRooms } = useRoomsStore()
   const {
     reservations,
@@ -38,10 +38,13 @@ export function EditReservationPage() {
     clearError,
   } = useReservationsStore()
   const reservation = reservations.find((item) => item.id === reservationId)
+  const isAdmin = user?.role === 'ADMIN'
   const [roomId, setRoomId] = useState('')
   const [date, setDate] = useState('')
   const [startTime, setStartTime] = useState('')
   const [endTime, setEndTime] = useState('')
+  const [attendeesCount, setAttendeesCount] = useState(1)
+  const [justification, setJustification] = useState('')
   const [validationError, setValidationError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -57,10 +60,14 @@ export function EditReservationPage() {
 
   useEffect(() => {
     if (reservation) {
-      setRoomId(reservation.roomId)
-      setDate(toDateInputValue(reservation.date))
-      setStartTime(toTimeInputValue(reservation.startTime))
-      setEndTime(toTimeInputValue(reservation.endTime))
+      startTransition(() => {
+        setRoomId(reservation.roomId)
+        setDate(toDateInputValue(reservation.date))
+        setStartTime(toTimeInputValue(reservation.startTime))
+        setEndTime(toTimeInputValue(reservation.endTime))
+        setAttendeesCount(reservation.attendeesCount ?? 1)
+        setJustification(reservation.justification ?? '')
+      })
     }
   }, [reservation])
 
@@ -81,7 +88,14 @@ export function EditReservationPage() {
     try {
       await updateReservation(
         reservationId,
-        { roomId, date, startTime, endTime },
+        {
+          roomId,
+          date,
+          startTime,
+          endTime,
+          attendeesCount,
+          justification: justification.trim() || undefined,
+        },
         token,
       )
       navigate('/reservations')
@@ -212,6 +226,46 @@ export function EditReservationPage() {
                 />
               </div>
             </div>
+
+            {isAdmin && (
+              <div>
+              <label htmlFor="attendeesCount" className="block text-sm font-medium text-stone-700">
+                Participantes
+              </label>
+              <input
+                id="attendeesCount"
+                type="number"
+                min="1"
+                max={rooms.find((room) => room.id === roomId)?.capacity}
+                value={attendeesCount}
+                onChange={(event) => setAttendeesCount(Number(event.target.value))}
+                required
+                disabled={loading}
+                className="mt-1 min-h-11 w-full rounded-lg border border-stone-300 px-3 py-3 text-sm text-stone-900 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 disabled:bg-stone-50"
+              />
+              <p className="mt-1 text-xs text-stone-500">
+                Capacidade da sala: {rooms.find((room) => room.id === roomId)?.capacity ?? '-'} lugares
+              </p>
+              </div>
+            )}
+
+            {isAdmin && attendeesCount > 1 && (
+              <div>
+                <label htmlFor="justification" className="block text-sm font-medium text-stone-700">
+                  Justificativa
+                </label>
+                <textarea
+                  id="justification"
+                  value={justification}
+                  onChange={(event) => setJustification(event.target.value)}
+                  required
+                  disabled={loading}
+                  rows={3}
+                  placeholder="Informe a finalidade da ocupação das vagas."
+                  className="mt-1 w-full resize-y rounded-lg border border-stone-300 px-3 py-3 text-sm text-stone-900 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 disabled:bg-stone-50"
+                />
+              </div>
+            )}
 
             <button
               type="submit"

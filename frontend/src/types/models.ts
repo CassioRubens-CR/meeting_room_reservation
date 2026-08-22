@@ -22,6 +22,8 @@ export interface Reservation {
   date: string
   startTime: string
   endTime: string
+  attendeesCount: number
+  justification?: string | null
   status: ReservationStatus
   userId: string
   roomId: string
