@@ -1,7 +1,13 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { useEffect } from 'react'
 import { useAuthStore } from './store'
-import { LoginPage, RegisterPage, HomePage } from './pages'
+import {
+  LoginPage,
+  RegisterPage,
+  HomePage,
+  RoomsPage,
+  CreateReservationPage,
+} from './pages'
 import { ProtectedRoute } from './components'
 
 export function App() {
@@ -33,6 +39,22 @@ export function App() {
           element={
             <ProtectedRoute>
               <HomePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/rooms"
+          element={
+            <ProtectedRoute>
+              <RoomsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/rooms/:roomId/reserve"
+          element={
+            <ProtectedRoute>
+              <CreateReservationPage />
             </ProtectedRoute>
           }
         />
