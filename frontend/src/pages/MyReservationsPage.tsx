@@ -80,6 +80,13 @@ export function MyReservationsPage() {
           >
             Nova reserva
           </button>
+          <button
+            type="button"
+            onClick={() => navigate('/dashboard')}
+            className="min-h-11 rounded-lg border border-stone-300 px-4 py-3 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-100"
+          >
+            Voltar ao dashboard
+          </button>
         </div>
 
         {error && (

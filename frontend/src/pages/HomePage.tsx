@@ -26,9 +26,14 @@ export function HomePage() {
       <section className="mb-6 rounded-2xl border border-brand-200 bg-white p-4 shadow-sm sm:p-6">
         <h2 className="text-lg font-semibold text-stone-900 sm:text-xl">
           Bem-vindo, {user?.name?.split(' ')[0]}!
-        </h2>
+          </h2>
         <p className="mt-2 text-xs text-stone-600 sm:text-sm">
-          Você está autenticado no sistema. Em breve você poderá acessar salas de reunião e criar reservas.
+          {rooms.length > 0 && user?.role !== "ADMIN"
+            ? 'Sistema liberado! Você já pode acessar as salas e criar suas reservas.'
+            : user?.role === "ADMIN"
+            ? 'Sistema liberado! Você já pode gerenciar salas de reunião e criar reservas.'
+            : 'Você está autenticado no sistema. Em breve você poderá acessar salas de reunião e criar reservas.'
+          }
         </p>
       </section>
 
