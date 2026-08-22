@@ -1,8 +1,24 @@
+import { useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { useAuthStore } from '../store'
 import { Layout } from '../components'
+import { useReservationsStore, useRoomsStore } from '../store'
 
 export function HomePage() {
-  const { user } = useAuthStore()
+  const { token, user } = useAuthStore()
+  const { rooms, fetchRooms } = useRoomsStore()
+  const { reservations, fetchMyReservations } = useReservationsStore()
+
+  useEffect(() => {
+    if (token) {
+      if (rooms.length === 0) {
+        void fetchRooms(token)
+      }
+      if (reservations.length === 0) {
+        void fetchMyReservations(token)
+      }
+    }
+  }, [fetchMyReservations, fetchRooms, reservations.length, rooms.length, token])
 
   return (
     <Layout>
@@ -17,9 +33,9 @@ export function HomePage() {
       </section>
 
       {/* Features Grid */}
-      <div className="grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {/* Rooms Feature */}
-        <div className="rounded-lg border border-stone-200 bg-white p-4 shadow-sm sm:p-6">
+        <Link to="/rooms" className="rounded-lg border border-stone-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md sm:p-6">
           <div className="mb-3 inline-flex items-center justify-center rounded-lg bg-brand-100 p-2 sm:p-3">
             <span className="text-lg sm:text-2xl">🏢</span>
           </div>
@@ -27,18 +43,18 @@ export function HomePage() {
           <p className="mt-2 text-xs text-stone-600 sm:text-sm">
             Veja todas as salas de reunião disponíveis no sistema.
           </p>
-        </div>
+        </Link>
 
         {/* Reservations Feature */}
-        <div className="rounded-lg border border-stone-200 bg-white p-4 shadow-sm sm:p-6">
+        <Link to="/reservations" className="rounded-lg border border-stone-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md sm:p-6">
           <div className="mb-3 inline-flex items-center justify-center rounded-lg bg-blue-100 p-2 sm:p-3">
             <span className="text-lg sm:text-2xl">📅</span>
           </div>
           <h3 className="font-medium text-stone-900 sm:text-lg">Minhas Reservas</h3>
           <p className="mt-2 text-xs text-stone-600 sm:text-sm">
-            Gerenciar suas reservas e agendamentos.
+            {reservations.length} reserva(s) cadastrada(s).
           </p>
-        </div>
+        </Link>
 
         {/* Profile Feature */}
         <div className="rounded-lg border border-stone-200 bg-white p-4 shadow-sm sm:p-6">
@@ -47,7 +63,7 @@ export function HomePage() {
           </div>
           <h3 className="font-medium text-stone-900 sm:text-lg">Seu Perfil</h3>
           <p className="mt-2 text-xs text-stone-600 sm:text-sm">
-            Visualizar e editar suas informações pessoais.
+            {rooms.length} sala(s) disponível(is) para reserva.
           </p>
         </div>
       </div>

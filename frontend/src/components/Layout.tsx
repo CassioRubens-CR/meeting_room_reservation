@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store'
 
 interface LayoutProps {
@@ -24,19 +24,19 @@ export function Layout({ children }: LayoutProps) {
               Meeting Room Reservation
             </p>
             <nav className="mt-2 flex gap-3 text-xs font-medium text-stone-600 sm:gap-4 sm:text-sm">
-              <a href="/dashboard" className="hover:text-brand-700">
+              <Link to="/dashboard" className="hover:text-brand-700">
                 Dashboard
-              </a>
-              <a href="/rooms" className="hover:text-brand-700">
+              </Link>
+              <Link to="/rooms" className="hover:text-brand-700">
                 Salas
-              </a>
-              <a href="/reservations" className="hover:text-brand-700">
+              </Link>
+              <Link to="/reservations" className="hover:text-brand-700">
                 Reservas
-              </a>
+              </Link>
               {user?.role === 'ADMIN' && (
-                <a href="/admin/rooms" className="hover:text-brand-700">
+                <Link to="/admin/rooms" className="hover:text-brand-700">
                   Admin
-                </a>
+                </Link>
               )}
             </nav>
           </div>
