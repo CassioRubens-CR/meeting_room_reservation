@@ -158,6 +158,14 @@ export function MyReservationsPage() {
 
                   <button
                     type="button"
+                    onClick={() => navigate(`/reservations/${reservation.id}/edit`)}
+                    disabled={loading || isCancelled}
+                    className="min-h-11 w-full rounded-lg border border-brand-200 px-4 py-3 text-sm font-medium text-brand-700 hover:bg-brand-50 disabled:cursor-not-allowed disabled:border-stone-200 disabled:text-stone-400"
+                  >
+                    {isCancelled ? 'Reserva cancelada' : 'Editar reserva'}
+                  </button>
+                  <button
+                    type="button"
                     onClick={() => void handleCancel(reservation)}
                     disabled={loading || isCancelled}
                     className="min-h-11 w-full rounded-lg border border-red-200 px-4 py-3 text-sm font-medium text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:border-stone-200 disabled:text-stone-400"

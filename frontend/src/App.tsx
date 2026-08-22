@@ -8,6 +8,8 @@ import {
   RoomsPage,
   CreateReservationPage,
   MyReservationsPage,
+  EditReservationPage,
+  AdminRoomsPage,
 } from './pages'
 import { ProtectedRoute } from './components'
 
@@ -64,6 +66,22 @@ export function App() {
           element={
             <ProtectedRoute>
               <MyReservationsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/reservations/:reservationId/edit"
+          element={
+            <ProtectedRoute>
+              <EditReservationPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/rooms"
+          element={
+            <ProtectedRoute>
+              <AdminRoomsPage />
             </ProtectedRoute>
           }
         />

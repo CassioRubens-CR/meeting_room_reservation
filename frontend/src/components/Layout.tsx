@@ -33,6 +33,11 @@ export function Layout({ children }: LayoutProps) {
               <a href="/reservations" className="hover:text-brand-700">
                 Reservas
               </a>
+              {user?.role === 'ADMIN' && (
+                <a href="/admin/rooms" className="hover:text-brand-700">
+                  Admin
+                </a>
+              )}
             </nav>
           </div>
           <div className="flex items-center gap-2 sm:gap-4">
