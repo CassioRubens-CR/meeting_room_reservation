@@ -21,7 +21,7 @@ export function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-stone-100 p-4">
+    <main className="flex min-h-[100dvh] items-start justify-center overflow-y-auto bg-stone-100 p-4 sm:items-center sm:py-6">
       <div className="w-full max-w-md rounded-2xl border border-brand-200 bg-white p-4 shadow-sm sm:p-6">
         <div className="mb-4 sm:mb-6">
           <h1 className="text-xl font-semibold text-stone-900 sm:text-2xl">Login</h1>
