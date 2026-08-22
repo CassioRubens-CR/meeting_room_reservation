@@ -23,6 +23,17 @@ export function Layout({ children }: LayoutProps) {
             <p className="text-xs font-medium uppercase tracking-wider text-brand-700 sm:text-sm">
               Meeting Room Reservation
             </p>
+            <nav className="mt-2 flex gap-3 text-xs font-medium text-stone-600 sm:gap-4 sm:text-sm">
+              <a href="/dashboard" className="hover:text-brand-700">
+                Dashboard
+              </a>
+              <a href="/rooms" className="hover:text-brand-700">
+                Salas
+              </a>
+              <a href="/reservations" className="hover:text-brand-700">
+                Reservas
+              </a>
+            </nav>
           </div>
           <div className="flex items-center gap-2 sm:gap-4">
             <span className="text-xs text-stone-600 sm:text-sm">
