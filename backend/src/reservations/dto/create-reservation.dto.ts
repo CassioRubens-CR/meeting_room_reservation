@@ -2,7 +2,6 @@ import {
   IsDateString,
   IsInt,
   IsNotEmpty,
-  IsOptional,
   IsString,
   Min,
   Matches,
@@ -37,6 +36,5 @@ export class CreateReservationDto {
   @ValidateIf((reservation) => reservation.attendeesCount > 1)
   @IsString({ message: 'A justificativa deve ser um texto' })
   @IsNotEmpty({ message: 'A justificativa é obrigatória para mais de 1 participante' })
-  @IsOptional()
   justification?: string;
 }

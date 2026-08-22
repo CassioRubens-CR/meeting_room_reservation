@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { login, register } from '../api'
+import { changePassword, login, register } from '../api'
 import type { AuthResponse, User } from '../types/models'
 
 const AUTH_STORAGE_KEY = 'meeting-room-auth'
@@ -25,6 +25,10 @@ interface AuthStore {
   register: (payload: RegisterPayload) => Promise<void>
   logout: () => void
   clearError: () => void
+  changePassword: (
+    currentPassword: string,
+    newPassword: string,
+  ) => Promise<void>
 }
 
 function persistAuth(data: AuthResponse) {
@@ -120,5 +124,23 @@ export const useAuthStore = create<AuthStore>((set) => ({
 
   clearError: () => {
     set({ error: null })
+  },
+
+  changePassword: async (currentPassword, newPassword) => {
+    const token = useAuthStore.getState().token
+    if (!token) {
+      return
+    }
+
+    set({ loading: true, error: null })
+    try {
+      await changePassword({ currentPassword, newPassword }, token)
+      set({ loading: false })
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'Falha ao alterar senha'
+      set({ error: message, loading: false })
+      throw error
+    }
   },
 }))

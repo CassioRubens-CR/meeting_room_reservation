@@ -4,6 +4,7 @@ import * as bcrypt from 'bcrypt';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 
@@ -15,7 +16,9 @@ jest.mock('bcrypt', () => ({
 describe('AuthService', () => {
   const usersService = {
     findByEmail: jest.fn<() => Promise<unknown>>(),
+    findById: jest.fn<() => Promise<unknown>>(),
     create: jest.fn<() => Promise<unknown>>(),
+    updatePassword: jest.fn<() => Promise<unknown>>(),
   };
   const jwtService = {
     signAsync: jest.fn<() => Promise<unknown>>(),
@@ -108,5 +111,46 @@ describe('AuthService', () => {
       email: 'user@example.com',
       role: 'USER',
     });
+  });
+
+  it('rejects a password change when the current password is invalid', async () => {
+    usersService.findById.mockResolvedValue({
+      id: 'user-1',
+      passwordHash: 'stored-hash',
+    });
+    compareMock.mockResolvedValue(false);
+
+    const dto: ChangePasswordDto = {
+      currentPassword: 'wrongpass',
+      newPassword: 'newpassword123',
+    };
+
+    await expect(service.changePassword('user-1', dto)).rejects.toThrow(
+      'A senha atual está incorreta',
+    );
+    expect(usersService.updatePassword).not.toHaveBeenCalled();
+  });
+
+  it('hashes and saves a new password', async () => {
+    usersService.findById.mockResolvedValue({
+      id: 'user-1',
+      passwordHash: 'stored-hash',
+    });
+    compareMock.mockResolvedValue(true);
+    hashMock.mockResolvedValue('new-hashed-password');
+    usersService.updatePassword.mockResolvedValue({ id: 'user-1' });
+
+    const dto: ChangePasswordDto = {
+      currentPassword: 'currentpass',
+      newPassword: 'newpassword123',
+    };
+
+    await expect(service.changePassword('user-1', dto)).resolves.toEqual({
+      message: 'Senha alterada com sucesso',
+    });
+    expect(usersService.updatePassword).toHaveBeenCalledWith(
+      'user-1',
+      'new-hashed-password',
+    );
   });
 });

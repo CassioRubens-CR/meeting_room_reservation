@@ -12,6 +12,11 @@ export interface LoginInput {
   password: string
 }
 
+export interface ChangePasswordInput {
+  currentPassword: string
+  newPassword: string
+}
+
 export function register(payload: RegisterInput) {
   return request<AuthResponse>('/auth/register', {
     method: 'POST',
@@ -22,6 +27,14 @@ export function register(payload: RegisterInput) {
 export function login(payload: LoginInput) {
   return request<AuthResponse>('/auth/login', {
     method: 'POST',
+    body: payload,
+  })
+}
+
+export function changePassword(payload: ChangePasswordInput, token: string) {
+  return request<{ message: string }>('/auth/change-password', {
+    method: 'POST',
+    token,
     body: payload,
   })
 }

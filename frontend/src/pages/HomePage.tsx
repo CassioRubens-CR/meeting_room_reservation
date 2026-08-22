@@ -62,7 +62,10 @@ export function HomePage() {
         </Link>
 
         {/* Profile Feature */}
-        <div className="rounded-lg border border-stone-200 bg-white p-4 shadow-sm sm:p-6">
+        <Link
+          to="/profile"
+          className="rounded-lg border border-stone-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md sm:p-6"
+        >
           <div className="mb-3 inline-flex items-center justify-center rounded-lg bg-accent-100 p-2 sm:p-3">
             <span className="text-lg sm:text-2xl">👤</span>
           </div>
@@ -70,7 +73,22 @@ export function HomePage() {
           <p className="mt-2 text-xs text-stone-600 sm:text-sm">
             {rooms.length} sala(s) disponível(is) para reserva.
           </p>
-        </div>
+        </Link>
+
+        {user?.role === 'ADMIN' && (
+          <Link
+            to="/admin/rooms"
+            className="rounded-lg border border-stone-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md sm:p-6"
+          >
+            <div className="mb-3 inline-flex items-center justify-center rounded-lg bg-brand-100 p-2 sm:p-3">
+              <span className="text-lg sm:text-2xl">⚙️</span>
+            </div>
+            <h3 className="font-medium text-stone-900 sm:text-lg">Gerenciar Salas</h3>
+            <p className="mt-2 text-xs text-stone-600 sm:text-sm">
+              Cadastrar, editar e excluir salas de reunião.
+            </p>
+          </Link>
+        )}
       </div>
     </Layout>
   )
