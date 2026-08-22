@@ -19,6 +19,7 @@ interface AuthStore {
   loading: boolean
   error: string | null
   isAuthenticated: boolean
+  hydrated: boolean
   hydrate: () => void
   login: (payload: Credentials) => Promise<void>
   register: (payload: RegisterPayload) => Promise<void>
@@ -40,11 +41,13 @@ export const useAuthStore = create<AuthStore>((set) => ({
   loading: false,
   error: null,
   isAuthenticated: false,
+  hydrated: false,
 
   hydrate: () => {
     const rawAuth = localStorage.getItem(AUTH_STORAGE_KEY)
 
     if (!rawAuth) {
+      set({ hydrated: true })
       return
     }
 
@@ -55,9 +58,11 @@ export const useAuthStore = create<AuthStore>((set) => ({
         token: parsed.accessToken,
         user: parsed.user,
         isAuthenticated: true,
+        hydrated: true,
       })
     } catch {
       clearPersistedAuth()
+      set({ hydrated: true })
     }
   },
 
