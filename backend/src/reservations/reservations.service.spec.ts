@@ -6,8 +6,8 @@ import { ReservationsService } from './reservations.service';
 
 describe('ReservationsService', () => {
   const repository = {
-    findOverlapping: jest.fn<() => Promise<unknown>>(),
-    findOverlappingExcept: jest.fn<() => Promise<unknown>>(),
+    findRoom: jest.fn<() => Promise<unknown>>(),
+    sumOverlappingAttendees: jest.fn<() => Promise<number>>(),
     findById: jest.fn<() => Promise<unknown>>(),
     create: jest.fn<() => Promise<unknown>>(),
     update: jest.fn<() => Promise<unknown>>(),
@@ -19,6 +19,8 @@ describe('ReservationsService', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    repository.findRoom.mockResolvedValue({ capacity: 10 });
+    repository.sumOverlappingAttendees.mockResolvedValue(0);
   });
 
   it('rejects reservations shorter than one hour', async () => {
@@ -32,7 +34,7 @@ describe('ReservationsService', () => {
     await expect(service.create('user-1', dto)).rejects.toThrow(
       BadRequestException,
     );
-    expect(repository.findOverlapping).not.toHaveBeenCalled();
+    expect(repository.sumOverlappingAttendees).not.toHaveBeenCalled();
   });
 
   it('rejects reservations when the end is before the start', async () => {
@@ -46,7 +48,7 @@ describe('ReservationsService', () => {
     await expect(service.create('user-1', dto)).rejects.toThrow(
       'Horário de término deve ser após o início',
     );
-    expect(repository.findOverlapping).not.toHaveBeenCalled();
+    expect(repository.sumOverlappingAttendees).not.toHaveBeenCalled();
   });
 
   it('rejects reservations in the past', async () => {
@@ -60,11 +62,11 @@ describe('ReservationsService', () => {
     await expect(service.create('user-1', dto)).rejects.toThrow(
       'Não é possível reservar um horário no passado',
     );
-    expect(repository.findOverlapping).not.toHaveBeenCalled();
+    expect(repository.sumOverlappingAttendees).not.toHaveBeenCalled();
   });
 
   it('rejects overlapping reservations in the same room', async () => {
-    repository.findOverlapping.mockResolvedValue({ id: 'reservation-1' });
+    repository.sumOverlappingAttendees.mockResolvedValue(10);
     const dto: CreateReservationDto = {
       roomId: 'room-1',
       date: '2099-01-01',
@@ -79,7 +81,6 @@ describe('ReservationsService', () => {
   });
 
   it('creates a valid reservation', async () => {
-    repository.findOverlapping.mockResolvedValue(null);
     repository.create.mockResolvedValue({ id: 'reservation-1' });
     const dto: CreateReservationDto = {
       roomId: 'room-1',
@@ -94,6 +95,53 @@ describe('ReservationsService', () => {
     expect(repository.create).toHaveBeenCalledWith(
       expect.objectContaining({ userId: 'user-1', roomId: 'room-1' }),
     );
+  });
+
+  it('allows a partial reservation when seats remain available', async () => {
+    repository.findRoom.mockResolvedValue({ capacity: 10 });
+    repository.sumOverlappingAttendees.mockResolvedValue(6);
+    repository.create.mockResolvedValue({ id: 'reservation-1' });
+
+    await expect(
+      service.create('user-1', {
+        roomId: 'room-1',
+        date: '2099-01-01',
+        startTime: '10:00',
+        endTime: '11:00',
+        attendeesCount: 4,
+        justification: 'Reunião do time comercial',
+      }, 'ADMIN'),
+    ).resolves.toEqual({ id: 'reservation-1' });
+  });
+
+  it('rejects a reservation that exceeds the remaining room capacity', async () => {
+    repository.findRoom.mockResolvedValue({ capacity: 10 });
+    repository.sumOverlappingAttendees.mockResolvedValue(6);
+
+    await expect(
+      service.create('user-1', {
+        roomId: 'room-1',
+        date: '2099-01-01',
+        startTime: '10:00',
+        endTime: '11:00',
+        attendeesCount: 5,
+        justification: 'Reunião ampliada',
+      }, 'ADMIN'),
+    ).rejects.toThrow('A sala não possui capacidade suficiente nesse intervalo');
+    expect(repository.create).not.toHaveBeenCalled();
+  });
+
+  it('requires justification when reserving more than one seat', async () => {
+    await expect(
+      service.create('user-1', {
+        roomId: 'room-1',
+        date: '2099-01-01',
+        startTime: '10:00',
+        endTime: '11:00',
+        attendeesCount: 2,
+      }, 'ADMIN'),
+    ).rejects.toThrow('Informe uma justificativa para reservar mais de 1 lugar');
+    expect(repository.sumOverlappingAttendees).not.toHaveBeenCalled();
   });
 
   it('lists reservations for the authenticated user', async () => {
@@ -113,7 +161,7 @@ describe('ReservationsService', () => {
       startTime: new Date('2099-01-01T10:00:00.000Z'),
       endTime: new Date('2099-01-01T11:00:00.000Z'),
     });
-    repository.findOverlappingExcept.mockResolvedValue(null);
+    repository.sumOverlappingAttendees.mockResolvedValue(0);
     repository.update.mockResolvedValue({ id: 'reservation-1' });
 
     await expect(
@@ -121,7 +169,7 @@ describe('ReservationsService', () => {
         endTime: '12:00',
       }),
     ).resolves.toEqual({ id: 'reservation-1' });
-    expect(repository.findOverlappingExcept).toHaveBeenCalledWith(
+    expect(repository.sumOverlappingAttendees).toHaveBeenCalledWith(
       'room-1',
       expect.any(Date),
       expect.any(Date),

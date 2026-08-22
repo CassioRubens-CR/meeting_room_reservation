@@ -13,7 +13,11 @@ import { ReservationsRepository } from './reservations.repository';
 export class ReservationsService {
   constructor(private readonly repository: ReservationsRepository) {}
 
-  async create(userId: string, dto: CreateReservationDto) {
+  async create(
+    userId: string,
+    dto: CreateReservationDto,
+    role: 'USER' | 'ADMIN' = 'USER',
+  ) {
     const start = this.toDate(dto.date, dto.startTime);
     const end = this.toDate(dto.date, dto.endTime);
 
@@ -38,14 +42,32 @@ export class ReservationsService {
       );
     }
 
-    const conflict = await this.repository.findOverlapping(
+    const room = await this.repository.findRoom(dto.roomId);
+
+    if (!room) {
+      throw new NotFoundException('Sala não encontrada');
+    }
+
+    const attendeesCount = dto.attendeesCount ?? 1;
+
+    if (role !== 'ADMIN' && attendeesCount > 1) {
+      throw new ForbiddenException(
+        'Apenas administradores podem reservar mais de 1 lugar',
+      );
+    }
+
+    this.validateAttendeesCount(attendeesCount, room.capacity, dto.justification);
+
+    const occupiedSeats = await this.repository.sumOverlappingAttendees(
       dto.roomId,
       start,
       end,
     );
 
-    if (conflict) {
-      throw new ConflictException('Sala já reservada nesse intervalo');
+    if (occupiedSeats + attendeesCount > room.capacity) {
+      throw new ConflictException(
+        `A sala não possui capacidade suficiente nesse intervalo (${occupiedSeats} de ${room.capacity} lugares ocupados)`,
+      );
     }
 
     return this.repository.create({
@@ -54,6 +76,8 @@ export class ReservationsService {
       date: this.toDate(dto.date, '00:00'),
       startTime: start,
       endTime: end,
+      attendeesCount,
+      justification: dto.justification?.trim() || undefined,
     });
   }
 
@@ -75,15 +99,27 @@ export class ReservationsService {
     const end = this.toDate(date, endTime);
 
     this.validateTimeWindow(start, end);
-    const conflict = await this.repository.findOverlappingExcept(
-      dto.roomId ?? reservation.roomId,
+    const targetRoomId = dto.roomId ?? reservation.roomId;
+    const room = await this.repository.findRoom(targetRoomId);
+
+    if (!room) {
+      throw new NotFoundException('Sala não encontrada');
+    }
+
+    const attendeesCount = dto.attendeesCount ?? reservation.attendeesCount ?? 1;
+    this.validateAttendeesCount(attendeesCount, room.capacity, dto.justification ?? reservation.justification ?? undefined);
+
+    const occupiedSeats = await this.repository.sumOverlappingAttendees(
+      targetRoomId,
       start,
       end,
       id,
     );
 
-    if (conflict) {
-      throw new ConflictException('Sala já reservada nesse intervalo');
+    if (occupiedSeats + attendeesCount > room.capacity) {
+      throw new ConflictException(
+        `A sala não possui capacidade suficiente nesse intervalo (${occupiedSeats} de ${room.capacity} lugares ocupados)`,
+      );
     }
 
     return this.repository.update(id, {
@@ -91,6 +127,8 @@ export class ReservationsService {
       date: this.toDate(date, '00:00'),
       startTime: start,
       endTime: end,
+      attendeesCount,
+      justification: dto.justification ?? reservation.justification ?? undefined,
     });
   }
 
@@ -133,6 +171,24 @@ export class ReservationsService {
     if (start < new Date()) {
       throw new BadRequestException(
         'Não é possível reservar um horário no passado',
+      );
+    }
+  }
+
+  private validateAttendeesCount(
+    attendeesCount: number,
+    capacity: number,
+    justification?: string,
+  ): void {
+    if (attendeesCount > capacity) {
+      throw new BadRequestException(
+        `A reserva não pode exceder a capacidade de ${capacity} participantes`,
+      );
+    }
+
+    if (attendeesCount > 1 && !justification?.trim()) {
+      throw new BadRequestException(
+        'Informe uma justificativa para reservar mais de 1 lugar',
       );
     }
   }

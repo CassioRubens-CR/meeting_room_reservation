@@ -1,8 +1,12 @@
 import {
   IsDateString,
+  IsInt,
+  IsNotEmpty,
   IsOptional,
   IsString,
+  Min,
   Matches,
+  ValidateIf,
 } from 'class-validator';
 import { HasAtLeastOneField } from '../../common/decorators/has-at-least-one-field.decorator';
 
@@ -31,4 +35,15 @@ export class UpdateReservationDto {
     message: 'O horário final deve estar no formato HH:mm',
   })
   endTime?: string;
+
+  @IsOptional()
+  @IsInt({ message: 'A quantidade de participantes deve ser um número inteiro' })
+  @Min(1, { message: 'A reserva deve ter pelo menos 1 participante' })
+  attendeesCount?: number;
+
+  @ValidateIf((reservation) => reservation.attendeesCount !== undefined && reservation.attendeesCount > 1)
+  @IsString({ message: 'A justificativa deve ser um texto' })
+  @IsNotEmpty({ message: 'A justificativa é obrigatória para mais de 1 participante' })
+  @IsOptional()
+  justification?: string;
 }

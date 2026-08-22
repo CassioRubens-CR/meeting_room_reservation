@@ -1,8 +1,12 @@
 import {
   IsDateString,
+  IsInt,
   IsNotEmpty,
+  IsOptional,
   IsString,
+  Min,
   Matches,
+  ValidateIf,
 } from 'class-validator';
 
 const TIME_PATTERN = /^([01]\d|2[0-3]):[0-5]\d$/;
@@ -25,4 +29,14 @@ export class CreateReservationDto {
     message: 'O horário final deve estar no formato HH:mm',
   })
   endTime!: string;
+
+  @IsInt({ message: 'A quantidade de participantes deve ser um número inteiro' })
+  @Min(1, { message: 'A reserva deve ter pelo menos 1 participante' })
+  attendeesCount: number = 1;
+
+  @ValidateIf((reservation) => reservation.attendeesCount > 1)
+  @IsString({ message: 'A justificativa deve ser um texto' })
+  @IsNotEmpty({ message: 'A justificativa é obrigatória para mais de 1 participante' })
+  @IsOptional()
+  justification?: string;
 }

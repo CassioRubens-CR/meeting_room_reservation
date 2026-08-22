@@ -5,15 +5,28 @@ import { PrismaService } from '../prisma/prisma.service';
 export class ReservationsRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  findOverlapping(roomId: string, start: Date, end: Date) {
-    return this.prisma.reservation.findFirst({
+  findRoom(roomId: string) {
+    return this.prisma.room.findUnique({ where: { id: roomId } });
+  }
+
+  async sumOverlappingAttendees(
+    roomId: string,
+    start: Date,
+    end: Date,
+    excludeId?: string,
+  ) {
+    const result = await this.prisma.reservation.aggregate({
       where: {
         roomId,
         status: 'CONFIRMED',
+        ...(excludeId ? { id: { not: excludeId } } : {}),
         startTime: { lt: end },
         endTime: { gt: start },
       },
+      _sum: { attendeesCount: true },
     });
+
+    return result._sum.attendeesCount ?? 0;
   }
 
   findById(id: string) {
@@ -27,6 +40,8 @@ export class ReservationsRepository {
       date?: Date;
       startTime?: Date;
       endTime?: Date;
+      attendeesCount?: number;
+      justification?: string;
       status?: 'CONFIRMED' | 'CANCELLED';
     },
   ) {
@@ -39,15 +54,7 @@ export class ReservationsRepository {
     end: Date,
     excludeId: string,
   ) {
-    return this.prisma.reservation.findFirst({
-      where: {
-        roomId,
-        status: 'CONFIRMED',
-        id: { not: excludeId },
-        startTime: { lt: end },
-        endTime: { gt: start },
-      },
-    });
+    return this.sumOverlappingAttendees(roomId, start, end, excludeId);
   }
 
   create(data: {
@@ -56,6 +63,8 @@ export class ReservationsRepository {
     date: Date;
     startTime: Date;
     endTime: Date;
+    attendeesCount: number;
+    justification?: string;
   }) {
     return this.prisma.reservation.create({ data });
   }

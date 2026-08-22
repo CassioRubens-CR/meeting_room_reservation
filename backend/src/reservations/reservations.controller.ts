@@ -19,7 +19,7 @@ export class ReservationsController {
     @CurrentUser() user: CurrentUserPayload,
     @Body() dto: CreateReservationDto,
   ) {
-    return this.reservationsService.create(user.sub, dto);
+    return this.reservationsService.create(user.sub, dto, user.role);
   }
 
   @Patch(':id')

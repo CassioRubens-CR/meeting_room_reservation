@@ -41,6 +41,8 @@ model Reservation {
   date      DateTime
   startTime DateTime
   endTime   DateTime
+  attendeesCount Int              @default(1)
+  justification  String?
   status    ReservationStatus @default(CONFIRMED)
   userId    String
   roomId    String
