@@ -1,15 +1,25 @@
-import { IsInt, IsOptional, IsString, Min, MinLength } from 'class-validator';
+import {
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Min,
+  MinLength,
+} from 'class-validator';
 
 export class CreateRoomDto {
-  @IsString()
-  @MinLength(2)
+  @IsString({ message: 'O nome da sala deve ser um texto' })
+  @IsNotEmpty({ message: 'O nome da sala é obrigatório' })
+  @MinLength(2, {
+    message: 'O nome da sala deve ter pelo menos 2 caracteres',
+  })
   name!: string;
 
-  @IsInt()
-  @Min(1)
+  @IsInt({ message: 'A capacidade deve ser um número inteiro' })
+  @Min(1, { message: 'A capacidade deve ser de pelo menos 1 pessoa' })
   capacity!: number;
 
   @IsOptional()
-  @IsString()
+  @IsString({ message: 'A localização deve ser um texto' })
   location?: string;
 }
