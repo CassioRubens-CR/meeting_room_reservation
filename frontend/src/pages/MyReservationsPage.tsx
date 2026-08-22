@@ -1,6 +1,6 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Layout } from '../components'
+import { ConfirmModal, Layout } from '../components'
 import { useAuthStore, useReservationsStore, useRoomsStore } from '../store'
 import type { Reservation } from '../types/models'
 
@@ -30,6 +30,7 @@ export function MyReservationsPage() {
     cancelReservation,
     clearError,
   } = useReservationsStore()
+  const [reservationToCancel, setReservationToCancel] = useState<Reservation | null>(null)
 
   useEffect(() => {
     if (token) {
@@ -40,19 +41,15 @@ export function MyReservationsPage() {
     }
   }, [fetchMyReservations, fetchRooms, rooms.length, token])
 
-  const handleCancel = async (reservation: Reservation) => {
-    if (!token || reservation.status === 'CANCELLED') {
-      return
-    }
-
-    const confirmed = window.confirm('Deseja cancelar esta reserva?')
-    if (!confirmed) {
+  const handleCancel = async () => {
+    if (!token || !reservationToCancel || reservationToCancel.status === 'CANCELLED') {
       return
     }
 
     clearError()
     try {
-      await cancelReservation(reservation.id, token)
+      await cancelReservation(reservationToCancel.id, token)
+      setReservationToCancel(null)
     } catch {
       // Error is exposed by the reservations store.
     }
@@ -73,20 +70,22 @@ export function MyReservationsPage() {
               Consulte e gerencie seus horários reservados.
             </p>
           </div>
-          <button
-            type="button"
-            onClick={() => navigate('/rooms')}
-            className="min-h-11 rounded-lg bg-brand-600 px-4 py-3 text-sm font-medium text-white hover:bg-brand-700"
-          >
-            Nova reserva
-          </button>
-          <button
-            type="button"
-            onClick={() => navigate('/dashboard')}
-            className="min-h-11 rounded-lg border border-stone-300 px-4 py-3 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-100"
-          >
-            Voltar ao dashboard
-          </button>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <button
+              type="button"
+              onClick={() => navigate('/dashboard')}
+              className="min-h-11 rounded-lg border border-stone-300 px-4 py-3 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-100"
+            >
+              Voltar ao dashboard
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate('/rooms')}
+              className="min-h-11 rounded-lg bg-brand-600 px-4 py-3 text-sm font-medium text-white hover:bg-brand-700"
+            >
+              Nova reserva
+            </button>
+          </div>
         </div>
 
         {error && (
@@ -176,28 +175,41 @@ export function MyReservationsPage() {
                     </p>
                   )}
 
-                  <button
-                    type="button"
-                    onClick={() => navigate(`/reservations/${reservation.id}/edit`)}
-                    disabled={loading || isCancelled}
-                    className="min-h-11 w-full rounded-lg border border-brand-200 px-4 py-3 text-sm font-medium text-brand-700 hover:bg-brand-50 disabled:cursor-not-allowed disabled:border-stone-200 disabled:text-stone-400"
-                  >
-                    {isCancelled ? 'Reserva cancelada' : 'Editar reserva'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => void handleCancel(reservation)}
-                    disabled={loading || isCancelled}
-                    className="min-h-11 w-full rounded-lg border border-red-200 px-4 py-3 text-sm font-medium text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:border-stone-200 disabled:text-stone-400"
-                  >
-                    {isCancelled ? 'Reserva cancelada' : 'Cancelar reserva'}
-                  </button>
+                  {!isCancelled && (
+                    <div className="grid gap-2 sm:grid-cols-2">
+                      <button
+                        type="button"
+                        onClick={() => navigate(`/reservations/${reservation.id}/edit`)}
+                        disabled={loading}
+                        className="min-h-11 w-full rounded-lg border border-brand-200 px-4 py-3 text-sm font-medium text-brand-700 hover:bg-brand-50 disabled:cursor-not-allowed disabled:border-stone-200 disabled:text-stone-400"
+                      >
+                        Editar reserva
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setReservationToCancel(reservation)}
+                        disabled={loading}
+                        className="min-h-11 w-full rounded-lg border border-red-200 px-4 py-3 text-sm font-medium text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:border-stone-200 disabled:text-stone-400"
+                      >
+                        Cancelar reserva
+                      </button>
+                    </div>
+                  )}
                 </article>
               )
             })}
           </div>
         )}
       </div>
+      <ConfirmModal
+        open={reservationToCancel !== null}
+        title="Cancelar reserva"
+        message="Deseja cancelar esta reserva? Essa ação não poderá ser desfeita."
+        confirmLabel="Cancelar reserva"
+        loading={loading}
+        onConfirm={() => void handleCancel()}
+        onClose={() => setReservationToCancel(null)}
+      />
     </Layout>
   )
 }

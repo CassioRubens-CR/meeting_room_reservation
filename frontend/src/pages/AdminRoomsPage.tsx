@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Layout } from '../components'
+import { ConfirmModal, Layout } from '../components'
 import { useAuthStore, useRoomsStore } from '../store'
 import type { Room } from '../types/models'
 
@@ -17,6 +17,7 @@ export function AdminRoomsPage() {
     clearError,
   } = useRoomsStore()
   const [editingRoom, setEditingRoom] = useState<Room | null>(null)
+  const [roomToDelete, setRoomToDelete] = useState<Room | null>(null)
   const [name, setName] = useState('')
   const [capacity, setCapacity] = useState('')
   const [location, setLocation] = useState('')
@@ -24,8 +25,8 @@ export function AdminRoomsPage() {
 
   const isAdmin = user?.role === 'ADMIN'
 
-  const handleDelete = async (roomId: string, roomName: string) => {
-    if (!token || !window.confirm(`Deseja excluir a sala "${roomName}"?`)) {
+  const handleDelete = async () => {
+    if (!token || !roomToDelete) {
       return
     }
 
@@ -33,7 +34,8 @@ export function AdminRoomsPage() {
     clearError()
 
     try {
-      await deleteRoom(roomId, token)
+      await deleteRoom(roomToDelete.id, token)
+      setRoomToDelete(null)
       setSuccessMessage('Sala excluída com sucesso.')
     } catch {
       // Error is exposed by the rooms store.
@@ -266,7 +268,7 @@ export function AdminRoomsPage() {
                       </button>
                       <button
                         type="button"
-                        onClick={() => void handleDelete(room.id, room.name)}
+                        onClick={() => setRoomToDelete(room)}
                         disabled={loading}
                         className="min-h-11 rounded-lg border border-red-200 px-3 py-2 text-xs font-medium text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:border-stone-200 disabled:text-stone-400"
                       >
@@ -282,6 +284,19 @@ export function AdminRoomsPage() {
           </section>
         </div>
       )}
+      <ConfirmModal
+        open={roomToDelete !== null}
+        title="Excluir sala"
+        message={
+          roomToDelete
+            ? `Deseja excluir a sala "${roomToDelete.name}"? Essa ação não poderá ser desfeita.`
+            : ''
+        }
+        confirmLabel="Excluir sala"
+        loading={loading}
+        onConfirm={() => void handleDelete()}
+        onClose={() => setRoomToDelete(null)}
+      />
     </Layout>
   )
 }
