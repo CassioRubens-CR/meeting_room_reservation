@@ -58,7 +58,7 @@ export function HomePage() {
 
         {/* Profile Feature */}
         <div className="rounded-lg border border-stone-200 bg-white p-4 shadow-sm sm:p-6">
-          <div className="mb-3 inline-flex items-center justify-center rounded-lg bg-green-100 p-2 sm:p-3">
+          <div className="mb-3 inline-flex items-center justify-center rounded-lg bg-accent-100 p-2 sm:p-3">
             <span className="text-lg sm:text-2xl">👤</span>
           </div>
           <h3 className="font-medium text-stone-900 sm:text-lg">Seu Perfil</h3>

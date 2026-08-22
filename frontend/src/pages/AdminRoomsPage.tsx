@@ -79,7 +79,7 @@ export function AdminRoomsPage() {
                 </div>
               )}
               {successMessage && (
-                <div className="rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-800">
+                <div className="rounded-lg border border-accent-200 bg-accent-50 p-3 text-sm text-accent-900">
                   {successMessage}
                 </div>
               )}

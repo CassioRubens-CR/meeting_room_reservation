@@ -136,7 +136,7 @@ export function MyReservationsPage() {
                       className={`shrink-0 rounded-full px-2 py-1 text-xs font-medium ${
                         isCancelled
                           ? 'bg-stone-100 text-stone-600'
-                          : 'bg-green-100 text-green-800'
+                          : 'bg-accent-100 text-accent-900'
                       }`}
                     >
                       {getReservationStatus(reservation)}
