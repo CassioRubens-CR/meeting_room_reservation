@@ -25,6 +25,16 @@ export function AdminRoomsPage() {
 
   const isAdmin = user?.role === 'ADMIN'
 
+  const handleOpenDelete = (room: Room) => {
+    clearError()
+    setRoomToDelete(room)
+  }
+
+  const handleCloseDelete = () => {
+    clearError()
+    setRoomToDelete(null)
+  }
+
   const handleDelete = async () => {
     if (!token || !roomToDelete) {
       return
@@ -268,7 +278,7 @@ export function AdminRoomsPage() {
                       </button>
                       <button
                         type="button"
-                        onClick={() => setRoomToDelete(room)}
+                        onClick={() => handleOpenDelete(room)}
                         disabled={loading}
                         className="min-h-11 rounded-lg border border-red-200 px-3 py-2 text-xs font-medium text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:border-stone-200 disabled:text-stone-400"
                       >
@@ -293,9 +303,10 @@ export function AdminRoomsPage() {
             : ''
         }
         confirmLabel="Excluir sala"
+        error={error}
         loading={loading}
         onConfirm={() => void handleDelete()}
-        onClose={() => setRoomToDelete(null)}
+        onClose={handleCloseDelete}
       />
     </Layout>
   )

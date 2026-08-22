@@ -11,7 +11,14 @@ function formatDate(value: string) {
 }
 
 function formatTime(value: string) {
-  return value.includes('T') ? value.slice(11, 16) : value
+  if (!value.includes('T')) {
+    return value
+  }
+
+  const date = new Date(value)
+  return `${String(date.getHours()).padStart(2, '0')}:${String(
+    date.getMinutes(),
+  ).padStart(2, '0')}`
 }
 
 function getReservationStatus(reservation: Reservation) {
@@ -32,6 +39,16 @@ export function MyReservationsPage() {
   } = useReservationsStore()
   const [reservationToCancel, setReservationToCancel] = useState<Reservation | null>(null)
 
+  const handleOpenCancel = (reservation: Reservation) => {
+    clearError()
+    setReservationToCancel(reservation)
+  }
+
+  const handleCloseCancel = () => {
+    clearError()
+    setReservationToCancel(null)
+  }
+
   useEffect(() => {
     if (token) {
       void fetchMyReservations(token)
@@ -49,7 +66,7 @@ export function MyReservationsPage() {
     clearError()
     try {
       await cancelReservation(reservationToCancel.id, token)
-      setReservationToCancel(null)
+      handleCloseCancel()
     } catch {
       // Error is exposed by the reservations store.
     }
@@ -187,7 +204,7 @@ export function MyReservationsPage() {
                       </button>
                       <button
                         type="button"
-                        onClick={() => setReservationToCancel(reservation)}
+                        onClick={() => handleOpenCancel(reservation)}
                         disabled={loading}
                         className="min-h-11 w-full rounded-lg border border-red-200 px-4 py-3 text-sm font-medium text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:border-stone-200 disabled:text-stone-400"
                       >
@@ -206,9 +223,10 @@ export function MyReservationsPage() {
         title="Cancelar reserva"
         message="Deseja cancelar esta reserva? Essa ação não poderá ser desfeita."
         confirmLabel="Cancelar reserva"
+        error={error}
         loading={loading}
         onConfirm={() => void handleCancel()}
-        onClose={() => setReservationToCancel(null)}
+        onClose={handleCloseCancel}
       />
     </Layout>
   )

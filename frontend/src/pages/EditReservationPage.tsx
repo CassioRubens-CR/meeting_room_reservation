@@ -4,11 +4,26 @@ import { Layout } from '../components'
 import { useAuthStore, useReservationsStore, useRoomsStore } from '../store'
 
 function toDateInputValue(value: string) {
-  return value.includes('T') ? value.slice(0, 10) : value
+  if (!value.includes('T')) {
+    return value
+  }
+
+  const date = new Date(value)
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+    2,
+    '0',
+  )}-${String(date.getDate()).padStart(2, '0')}`
 }
 
 function toTimeInputValue(value: string) {
-  return value.includes('T') ? value.slice(11, 16) : value
+  if (!value.includes('T')) {
+    return value
+  }
+
+  const date = new Date(value)
+  return `${String(date.getHours()).padStart(2, '0')}:${String(
+    date.getMinutes(),
+  ).padStart(2, '0')}`
 }
 
 function getDurationInMinutes(startTime: string, endTime: string) {

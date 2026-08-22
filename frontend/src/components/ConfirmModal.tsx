@@ -5,6 +5,7 @@ interface ConfirmModalProps {
   title: string
   message: string
   confirmLabel: string
+  error?: string | null
   loading?: boolean
   onConfirm: () => void
   onClose: () => void
@@ -15,6 +16,7 @@ export function ConfirmModal({
   title,
   message,
   confirmLabel,
+  error = null,
   loading = false,
   onConfirm,
   onClose,
@@ -61,6 +63,14 @@ export function ConfirmModal({
         <p id="confirm-modal-message" className="mt-2 text-sm leading-6 text-stone-600">
           {message}
         </p>
+        {error && (
+          <div
+            className="mt-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm leading-6 text-red-700"
+            role="alert"
+          >
+            {error}
+          </div>
+        )}
         <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
           <button
             type="button"
