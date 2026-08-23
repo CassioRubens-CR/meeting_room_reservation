@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useEffect, useRef, useState } from 'react'
+import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store'
 
 interface LayoutProps {
@@ -10,6 +10,42 @@ export function Layout({ children }: LayoutProps) {
   const navigate = useNavigate()
   const { user, logout } = useAuthStore()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [userMenuOpen, setUserMenuOpen] = useState(false)
+  const mobileMenuRef = useRef<HTMLElement>(null)
+  const mobileMenuButtonRef = useRef<HTMLButtonElement>(null)
+  const userMenuRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handleOutsideInteraction = (event: PointerEvent) => {
+      const target = event.target as Node
+
+      if (!userMenuRef.current?.contains(target)) {
+        setUserMenuOpen(false)
+      }
+
+      if (
+        !mobileMenuRef.current?.contains(target) &&
+        !mobileMenuButtonRef.current?.contains(target)
+      ) {
+        setMenuOpen(false)
+      }
+    }
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setMenuOpen(false)
+        setUserMenuOpen(false)
+      }
+    }
+
+    document.addEventListener('pointerdown', handleOutsideInteraction)
+    document.addEventListener('keydown', handleEscape)
+
+    return () => {
+      document.removeEventListener('pointerdown', handleOutsideInteraction)
+      document.removeEventListener('keydown', handleEscape)
+    }
+  }, [])
 
   const handleLogout = () => {
     logout()
@@ -20,81 +56,163 @@ export function Layout({ children }: LayoutProps) {
     <div className="flex min-h-screen flex-col bg-stone-50">
       {/* Header */}
       <header className="border-b border-stone-200 bg-white shadow-sm">
-        <div className="mx-auto flex max-w-7xl items-center justify-between p-4 sm:px-6 sm:py-4">
-          <div className="flex items-center gap-3">
+        <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6 sm:py-4 bg-brand-50 ">
+          <div className="hidden text-center sm:block">
+            <Link
+              to="/dashboard"
+              aria-label="Ir para o dashboard"
+              className="text-xs font-bold uppercase tracking-wider text-brand-700 sm:text-sm"
+            >
+              Meeting Room Reservation
+            </Link>
+          </div>
+          <div className="relative mt-0 flex items-center justify-between gap-3 sm:mt-4">
             <button
+              ref={mobileMenuButtonRef}
               type="button"
               aria-label={menuOpen ? 'Fechar menu' : 'Abrir menu'}
               aria-expanded={menuOpen}
+              aria-controls="mobile-navigation"
               onClick={() => setMenuOpen((isOpen) => !isOpen)}
-              className="order-first min-h-11 min-w-11 rounded-lg border border-stone-300 px-3 py-2 text-xl leading-none text-stone-700 transition-colors hover:bg-stone-100 sm:hidden"
+              className="order-first min-h-11 min-w-11 rounded-lg border border-2 border-brand-200 bg-brand-50 px-3 py-2 text-xl leading-none text-stone-700 transition-colors hover:border-brand-400 hover:bg-brand-100 sm:hidden"
             >
               {menuOpen ? '×' : '☰'}
             </button>
-            <p className="text-xs font-medium uppercase tracking-wider text-brand-700 sm:text-sm">
+            <Link
+              to="/dashboard"
+              aria-label="Ir para o dashboard"
+              className="absolute inset-x-14 truncate whitespace-nowrap text-center text-[10px] font-semibold uppercase tracking-wider text-brand-700 min-[360px]:text-xs sm:hidden"
+            >
               Meeting Room Reservation
-            </p>
-            <nav className="hidden gap-3 text-xs font-medium text-stone-600 sm:ml-6 sm:flex sm:gap-4 sm:text-sm">
-              <Link to="/dashboard" className="hover:text-brand-700">
+            </Link>
+            <nav
+              className="hidden flex-1 justify-center gap-3 text-xs font-medium text-stone-600 sm:flex sm:gap-4 sm:text-sm"
+              aria-label="Navegação principal"
+            >
+              <NavLink
+                to="/dashboard"
+                className={({ isActive }) =>
+                  isActive ? 'font-semibold text-brand-700' : 'hover:text-brand-700'
+                }
+              >
                 Dashboard
-              </Link>
-              <Link to="/rooms" className="hover:text-brand-700">
+              </NavLink>
+              <NavLink
+                to="/rooms"
+                className={({ isActive }) =>
+                  isActive ? 'font-semibold text-brand-700' : 'hover:text-brand-700'
+                }
+              >
                 Salas
-              </Link>
-              <Link to="/reservations" className="hover:text-brand-700">
+              </NavLink>
+              <NavLink
+                to="/reservations"
+                className={({ isActive }) =>
+                  isActive ? 'font-semibold text-brand-700' : 'hover:text-brand-700'
+                }
+              >
                 Reservas
-              </Link>
+              </NavLink>
               {user?.role === 'ADMIN' && (
-                <Link to="/admin/rooms" className="hover:text-brand-700">
-                  Admin
-                </Link>
+                <NavLink
+                  to="/admin/rooms"
+                  className={({ isActive }) =>
+                    isActive ? 'font-semibold text-brand-700' : 'hover:text-brand-700'
+                  }
+                >
+                  Administração
+                </NavLink>
               )}
             </nav>
-          </div>
-          <div className="flex items-center gap-2 sm:gap-4">
-            <span className="text-xs text-stone-600 sm:text-sm">
-              {user?.name}
-            </span>
-            <button
-              onClick={handleLogout}
-              className="rounded-lg bg-red-600 px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-red-700 sm:px-4 sm:py-2 sm:text-sm"
-            >
-              Sair
-            </button>
+            <div className="ml-auto flex items-center">
+            <div ref={userMenuRef} className="group relative">
+              <button
+                type="button"
+                aria-label="Abrir menu do usuário"
+                aria-expanded={userMenuOpen}
+                onClick={() => setUserMenuOpen((isOpen) => !isOpen)}
+                className="flex min-h-11 min-w-11 items-center justify-center rounded-full border-2 border-brand-200 bg-brand-50 text-xl leading-none transition-colors hover:border-brand-400 hover:bg-brand-100 focus:outline-none focus:ring-2 focus:ring-brand-500/30"
+              >
+                <span aria-hidden="true">👤</span>
+              </button>
+              <div
+                className={`invisible absolute right-0 top-full z-40 mt-2 w-56 origin-top-right rounded-xl border border-stone-200 bg-white p-2 opacity-0 shadow-lg transition-all group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100 ${
+                  userMenuOpen ? 'visible opacity-100' : ''
+                }`}
+              >
+                <div className="border-b border-stone-100 px-3 py-2">
+                  <p className="text-xs text-stone-500">Nome</p>
+                  <p className="mt-1 truncate text-sm font-medium text-stone-900">
+                    {user?.name}
+                  </p>
+                </div>
+                <Link
+                  to="/profile"
+                  onClick={() => setUserMenuOpen(false)}
+                  className="mt-1 block rounded-lg px-3 py-3 text-sm text-stone-700 hover:bg-brand-50 hover:text-brand-700"
+                >
+                  Meu perfil
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setUserMenuOpen(false)
+                    handleLogout()
+                  }}
+                  className="block min-h-11 w-full rounded-lg px-3 py-3 text-left text-sm text-red-700 hover:bg-red-50"
+                >
+                  Sair
+                </button>
+              </div>
+            </div>
+            </div>
           </div>
         </div>
         {menuOpen && (
-          <nav className="border-t border-stone-200 px-4 py-3 sm:hidden">
+          <nav
+            ref={mobileMenuRef}
+            id="mobile-navigation"
+            className="border-t border-stone-200 px-4 py-3 sm:hidden"
+            aria-label="Navegação mobile"
+          >
             <div className="mx-auto flex max-w-7xl flex-col gap-1 text-sm font-medium text-stone-700">
-              <Link
+              <NavLink
                 to="/dashboard"
                 onClick={() => setMenuOpen(false)}
-                className="rounded-lg px-3 py-3 hover:bg-brand-50 hover:text-brand-700"
+                className={({ isActive }) =>
+                  `rounded-lg px-3 py-3 hover:bg-brand-50 hover:text-brand-700 ${isActive ? 'bg-brand-50 font-semibold text-brand-700' : ''}`
+                }
               >
                 Dashboard
-              </Link>
-              <Link
+              </NavLink>
+              <NavLink
                 to="/rooms"
                 onClick={() => setMenuOpen(false)}
-                className="rounded-lg px-3 py-3 hover:bg-brand-50 hover:text-brand-700"
+                className={({ isActive }) =>
+                  `rounded-lg px-3 py-3 hover:bg-brand-50 hover:text-brand-700 ${isActive ? 'bg-brand-50 font-semibold text-brand-700' : ''}`
+                }
               >
                 Salas
-              </Link>
-              <Link
+              </NavLink>
+              <NavLink
                 to="/reservations"
                 onClick={() => setMenuOpen(false)}
-                className="rounded-lg px-3 py-3 hover:bg-brand-50 hover:text-brand-700"
+                className={({ isActive }) =>
+                  `rounded-lg px-3 py-3 hover:bg-brand-50 hover:text-brand-700 ${isActive ? 'bg-brand-50 font-semibold text-brand-700' : ''}`
+                }
               >
                 Reservas
-              </Link>
+              </NavLink>
               {user?.role === 'ADMIN' && (
-                <Link
+                <NavLink
                   to="/admin/rooms"
                   onClick={() => setMenuOpen(false)}
-                  className="rounded-lg px-3 py-3 hover:bg-brand-50 hover:text-brand-700"
+                  className={({ isActive }) =>
+                    `rounded-lg px-3 py-3 hover:bg-brand-50 hover:text-brand-700 ${isActive ? 'bg-brand-50 font-semibold text-brand-700' : ''}`
+                  }
                 >
                   Administração
-                </Link>
+                </NavLink>
               )}
             </div>
           </nav>
