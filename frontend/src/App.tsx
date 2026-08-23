@@ -11,6 +11,7 @@ import {
   EditReservationPage,
   AdminRoomsPage,
   ProfilePage,
+  AdminReservationsPage,
 } from './pages'
 import { ProtectedRoute } from './components'
 
@@ -91,6 +92,14 @@ export function App() {
           element={
             <ProtectedRoute>
               <ProfilePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/reservations"
+          element={
+            <ProtectedRoute>
+              <AdminReservationsPage />
             </ProtectedRoute>
           }
         />

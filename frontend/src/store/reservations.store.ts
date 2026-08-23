@@ -2,10 +2,11 @@ import { create } from 'zustand'
 import {
   cancelReservation,
   createReservation,
+  fetchAllReservations,
   fetchMyReservations,
   updateReservation,
 } from '../api'
-import type { Reservation } from '../types/models'
+import type { AdminReservation, Reservation } from '../types/models'
 
 interface CreateReservationPayload {
   roomId: string
@@ -25,11 +26,22 @@ interface UpdateReservationPayload {
   justification?: string
 }
 
+interface ReservationFilters {
+  date?: string
+  roomId?: string
+  userId?: string
+}
+
 interface ReservationsStore {
   reservations: Reservation[]
+  adminReservations: AdminReservation[]
   loading: boolean
   error: string | null
   fetchMyReservations: (token: string) => Promise<void>
+  fetchAllReservations: (
+    filters: ReservationFilters,
+    token: string,
+  ) => Promise<void>
   createReservation: (
     payload: CreateReservationPayload,
     token: string,
@@ -45,6 +57,7 @@ interface ReservationsStore {
 
 export const useReservationsStore = create<ReservationsStore>((set) => ({
   reservations: [],
+  adminReservations: [],
   loading: false,
   error: null,
 
@@ -57,6 +70,20 @@ export const useReservationsStore = create<ReservationsStore>((set) => ({
     } catch (error) {
       const message =
         error instanceof Error ? error.message : 'Falha ao buscar reservas'
+      set({ error: message, loading: false })
+      throw error
+    }
+  },
+
+  fetchAllReservations: async (filters, token) => {
+    set({ loading: true, error: null })
+
+    try {
+      const adminReservations = await fetchAllReservations(filters, token)
+      set({ adminReservations, loading: false })
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'Falha ao buscar todas as reservas'
       set({ error: message, loading: false })
       throw error
     }

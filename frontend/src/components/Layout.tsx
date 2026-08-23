@@ -32,11 +32,18 @@ export function Layout({ children }: LayoutProps) {
     navigate('/login')
   }
 
+  const desktopLinkClass = ({ isActive }: { isActive: boolean }) =>
+    isActive ? 'font-semibold text-brand-700' : 'hover:text-brand-700'
+
+  const mobileLinkClass = ({ isActive }: { isActive: boolean }) =>
+    `rounded-lg px-3 py-3 hover:bg-brand-50 hover:text-brand-700 ${
+      isActive ? 'bg-brand-50 font-semibold text-brand-700' : ''
+    }`
+
   return (
     <div className="flex min-h-screen flex-col bg-stone-50">
-      {/* Header */}
       <header className="border-b border-stone-200 bg-white shadow-sm">
-        <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6 sm:py-4 bg-brand-50 ">
+        <div className="mx-auto max-w-7xl bg-brand-50 px-4 py-3 sm:px-6 sm:py-4">
           <div className="hidden text-center sm:block">
             <Link
               to="/dashboard"
@@ -46,6 +53,7 @@ export function Layout({ children }: LayoutProps) {
               Meeting Room Reservation
             </Link>
           </div>
+
           <div className="relative mt-0 flex items-center justify-between gap-3 sm:mt-4">
             <button
               ref={mobileMenuButtonRef}
@@ -54,10 +62,11 @@ export function Layout({ children }: LayoutProps) {
               aria-expanded={menuOpen}
               aria-controls="mobile-navigation"
               onClick={() => setMenuOpen((isOpen) => !isOpen)}
-              className="order-first min-h-11 min-w-11 rounded-lg border border-2 border-brand-200 bg-brand-50 px-3 py-2 text-xl leading-none text-stone-700 transition-colors hover:border-brand-400 hover:bg-brand-100 sm:hidden"
+              className="order-first min-h-11 min-w-11 rounded-lg border-2 border-brand-200 bg-brand-50 px-3 py-2 text-xl leading-none text-stone-700 transition-colors hover:border-brand-400 hover:bg-brand-100 sm:hidden"
             >
               {menuOpen ? '×' : '☰'}
             </button>
+
             <Link
               to="/dashboard"
               aria-label="Ir para o dashboard"
@@ -65,47 +74,33 @@ export function Layout({ children }: LayoutProps) {
             >
               Meeting Room Reservation
             </Link>
+
             <nav
               className="hidden flex-1 justify-center gap-3 text-xs font-medium text-stone-600 sm:flex sm:gap-4 sm:text-sm"
               aria-label="Navegação principal"
             >
-              <NavLink
-                to="/dashboard"
-                className={({ isActive }) =>
-                  isActive ? 'font-semibold text-brand-700' : 'hover:text-brand-700'
-                }
-              >
+              <NavLink to="/dashboard" className={desktopLinkClass}>
                 Dashboard
               </NavLink>
-              <NavLink
-                to="/rooms"
-                className={({ isActive }) =>
-                  isActive ? 'font-semibold text-brand-700' : 'hover:text-brand-700'
-                }
-              >
+              <NavLink to="/rooms" className={desktopLinkClass}>
                 Salas
               </NavLink>
-              <NavLink
-                to="/reservations"
-                className={({ isActive }) =>
-                  isActive ? 'font-semibold text-brand-700' : 'hover:text-brand-700'
-                }
-              >
+              <NavLink to="/reservations" className={desktopLinkClass}>
                 Reservas
               </NavLink>
               {user?.role === 'ADMIN' && (
-                <NavLink
-                  to="/admin/rooms"
-                  className={({ isActive }) =>
-                    isActive ? 'font-semibold text-brand-700' : 'hover:text-brand-700'
-                  }
-                >
-                  Administração
-                </NavLink>
+                <>
+                  <NavLink to="/admin/rooms" className={desktopLinkClass}>
+                    Administração
+                  </NavLink>
+                  <NavLink to="/admin/reservations" className={desktopLinkClass}>
+                    Reservas ADMIN
+                  </NavLink>
+                </>
               )}
             </nav>
-            <div className="ml-auto flex items-center">
-            <div ref={userMenuRef} className="group relative">
+
+            <div ref={userMenuRef} className="group relative ml-auto">
               <button
                 type="button"
                 aria-label="Abrir menu do usuário"
@@ -145,9 +140,9 @@ export function Layout({ children }: LayoutProps) {
                 </button>
               </div>
             </div>
-            </div>
           </div>
         </div>
+
         {menuOpen && (
           <nav
             ref={mobileMenuRef}
@@ -156,50 +151,30 @@ export function Layout({ children }: LayoutProps) {
             aria-label="Navegação mobile"
           >
             <div className="mx-auto flex max-w-7xl flex-col gap-1 text-sm font-medium text-stone-700">
-              <NavLink
-                to="/dashboard"
-                onClick={() => setMenuOpen(false)}
-                className={({ isActive }) =>
-                  `rounded-lg px-3 py-3 hover:bg-brand-50 hover:text-brand-700 ${isActive ? 'bg-brand-50 font-semibold text-brand-700' : ''}`
-                }
-              >
+              <NavLink to="/dashboard" onClick={() => setMenuOpen(false)} className={mobileLinkClass}>
                 Dashboard
               </NavLink>
-              <NavLink
-                to="/rooms"
-                onClick={() => setMenuOpen(false)}
-                className={({ isActive }) =>
-                  `rounded-lg px-3 py-3 hover:bg-brand-50 hover:text-brand-700 ${isActive ? 'bg-brand-50 font-semibold text-brand-700' : ''}`
-                }
-              >
+              <NavLink to="/rooms" onClick={() => setMenuOpen(false)} className={mobileLinkClass}>
                 Salas
               </NavLink>
-              <NavLink
-                to="/reservations"
-                onClick={() => setMenuOpen(false)}
-                className={({ isActive }) =>
-                  `rounded-lg px-3 py-3 hover:bg-brand-50 hover:text-brand-700 ${isActive ? 'bg-brand-50 font-semibold text-brand-700' : ''}`
-                }
-              >
+              <NavLink to="/reservations" onClick={() => setMenuOpen(false)} className={mobileLinkClass}>
                 Reservas
               </NavLink>
               {user?.role === 'ADMIN' && (
-                <NavLink
-                  to="/admin/rooms"
-                  onClick={() => setMenuOpen(false)}
-                  className={({ isActive }) =>
-                    `rounded-lg px-3 py-3 hover:bg-brand-50 hover:text-brand-700 ${isActive ? 'bg-brand-50 font-semibold text-brand-700' : ''}`
-                  }
-                >
-                  Administração
-                </NavLink>
+                <>
+                  <NavLink to="/admin/rooms" onClick={() => setMenuOpen(false)} className={mobileLinkClass}>
+                    Administração
+                  </NavLink>
+                  <NavLink to="/admin/reservations" onClick={() => setMenuOpen(false)} className={mobileLinkClass}>
+                    Reservas ADMIN
+                  </NavLink>
+                </>
               )}
             </div>
           </nav>
         )}
       </header>
 
-      {/* Main Content */}
       <main className="flex-1">
         <div className="mx-auto max-w-7xl p-4 sm:p-6">
           {children}

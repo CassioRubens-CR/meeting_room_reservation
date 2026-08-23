@@ -31,6 +31,11 @@ export interface Reservation {
   updatedAt: string
 }
 
+export interface AdminReservation extends Reservation {
+  room: Room
+  user: User
+}
+
 export interface AuthResponse {
   accessToken: string
   user: User

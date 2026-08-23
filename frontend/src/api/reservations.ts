@@ -1,4 +1,4 @@
-import type { Reservation } from '../types/models'
+import type { AdminReservation, Reservation } from '../types/models'
 import { request } from './http'
 
 export interface CreateReservationInput {
@@ -49,7 +49,7 @@ export function fetchAllReservations(
   }
 
   const query = params.toString()
-  return request<Reservation[]>(`/reservations${query ? `?${query}` : ''}`, {
+  return request<AdminReservation[]>(`/reservations${query ? `?${query}` : ''}`, {
     method: 'GET',
     token,
   })
