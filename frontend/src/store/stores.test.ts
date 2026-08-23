@@ -313,7 +313,7 @@ describe('reservations store', () => {
     expect(state.reservations).toHaveLength(1)
     expect(state.reservations[0]).toEqual(mockReservation)
     expect(state.loading).toBe(false)
-  }}
+  })
 
   it('updates a reservation in the list', async () => {
     useReservationsStore.setState({ reservations: [mockReservation] })
