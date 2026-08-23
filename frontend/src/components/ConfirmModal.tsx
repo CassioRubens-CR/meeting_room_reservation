@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEscapeKey } from '../hooks'
 
 interface ConfirmModalProps {
   open: boolean
@@ -21,20 +21,7 @@ export function ConfirmModal({
   onConfirm,
   onClose,
 }: ConfirmModalProps) {
-  useEffect(() => {
-    if (!open) {
-      return
-    }
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && !loading) {
-        onClose()
-      }
-    }
-
-    document.addEventListener('keydown', handleKeyDown)
-    return () => document.removeEventListener('keydown', handleKeyDown)
-  }, [loading, onClose, open])
+  useEscapeKey(onClose, open && !loading)
 
   if (!open) {
     return null

@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store'
+import { useClickOutside, useEscapeKey } from '../hooks'
 
 interface LayoutProps {
   children: React.ReactNode
@@ -15,37 +16,16 @@ export function Layout({ children }: LayoutProps) {
   const mobileMenuButtonRef = useRef<HTMLButtonElement>(null)
   const userMenuRef = useRef<HTMLDivElement>(null)
 
-  useEffect(() => {
-    const handleOutsideInteraction = (event: PointerEvent) => {
-      const target = event.target as Node
-
-      if (!userMenuRef.current?.contains(target)) {
-        setUserMenuOpen(false)
-      }
-
-      if (
-        !mobileMenuRef.current?.contains(target) &&
-        !mobileMenuButtonRef.current?.contains(target)
-      ) {
-        setMenuOpen(false)
-      }
-    }
-
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        setMenuOpen(false)
-        setUserMenuOpen(false)
-      }
-    }
-
-    document.addEventListener('pointerdown', handleOutsideInteraction)
-    document.addEventListener('keydown', handleEscape)
-
-    return () => {
-      document.removeEventListener('pointerdown', handleOutsideInteraction)
-      document.removeEventListener('keydown', handleEscape)
-    }
-  }, [])
+  useClickOutside(
+    [mobileMenuRef, mobileMenuButtonRef],
+    () => setMenuOpen(false),
+    menuOpen,
+  )
+  useClickOutside(userMenuRef, () => setUserMenuOpen(false), userMenuOpen)
+  useEscapeKey(() => {
+    setMenuOpen(false)
+    setUserMenuOpen(false)
+  }, menuOpen || userMenuOpen)
 
   const handleLogout = () => {
     logout()
