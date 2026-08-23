@@ -34,7 +34,7 @@ Este é o backend de um sistema de reserva de salas de reunião que permite:
 - ✅ **Validação Global** de payloads (DTOs)
 - ✅ **Tratamento Centralizado** de exceções
 - ✅ **Headers de Segurança** (Helmet, CORS, HSTS)
-- ✅ **Testes Unitários** com Jest (27 testes, 8 suites)
+- ✅ **Testes Unitários** com Jest (78 testes, 16 suites, cobertura mínima de 80%)
 
 ---
 
@@ -90,11 +90,13 @@ backend/
 │   │   ├── auth.controller.ts           # Endpoints: POST /auth/register, /auth/login
 │   │   ├── auth.module.ts
 │   │   ├── auth.service.spec.ts         # Testes unitários
+│   │   ├── auth.controller.spec.ts      # Testes unitários
 │   │   ├── dto/
 │   │   │   ├── register.dto.ts          # DTO: name, email, password
 │   │   │   └── login.dto.ts             # DTO: email, password
 │   │   └── strategies/
-│   │       └── jwt.strategy.ts          # Estratégia JWT (Passport)
+│   │       ├── jwt.strategy.ts          # Estratégia JWT (Passport)
+│   │       └── jwt.strategy.spec.ts     # Testes unitários
 │   │
 │   ├── users/                           # Módulo de usuários
 │   │   ├── users.service.ts             # Lógica: create, findByEmail, findById
@@ -109,6 +111,7 @@ backend/
 │   │   ├── rooms.controller.ts          # Endpoints: GET /rooms, POST /rooms (ADMIN)
 │   │   ├── rooms.module.ts
 │   │   ├── rooms.service.spec.ts        # Testes unitários
+│   │   ├── rooms.controller.spec.ts     # Testes unitários
 │   │   └── dto/
 │   │       └── create-room.dto.ts       # DTO: name, capacity, location
 │   │
@@ -117,7 +120,9 @@ backend/
 │   │   ├── reservations.controller.ts   # Endpoints: GET /me, POST, PATCH/:id, DELETE/:id
 │   │   ├── reservations.module.ts
 │   │   ├── reservations.service.spec.ts # Testes unitários
+│   │   ├── reservations.controller.spec.ts # Testes unitários
 │   │   ├── reservations.repository.ts   # Queries de BD
+│   │   ├── reservations.repository.spec.ts # Testes unitários
 │   │   └── dto/
 │   │       ├── create-reservation.dto.ts # DTO: roomId, date, startTime, endTime
 │   │       └── update-reservation.dto.ts # DTO parcial para atualização
@@ -126,7 +131,8 @@ backend/
 │   │   ├── decorators/
 │   │   │   ├── public.decorator.ts      # @Public() para rotas públicas
 │   │   │   ├── roles.decorator.ts       # @Roles(Role.ADMIN) para RBAC
-│   │   │   └── current-user.decorator.ts # @CurrentUser() para injetar usuário
+│   │   │   ├── current-user.decorator.ts # @CurrentUser() para injetar usuário
+│   │   │   └── decorators.spec.ts       # Testes unitários (Public, Roles, CurrentUser)
 │   │   ├── guards/
 │   │   │   ├── jwt-auth.guard.ts        # Valida JWT (respeita @Public)
 │   │   │   ├── jwt-auth.guard.spec.ts   # Testes unitários
@@ -138,6 +144,7 @@ backend/
 │   │
 │   └── prisma/                          # Módulo Prisma
 │       ├── prisma.service.ts            # Singleton do cliente Prisma
+│       ├── prisma.service.spec.ts       # Testes unitários
 │       └── prisma.module.ts
 │
 ├── prisma/
@@ -747,17 +754,22 @@ Response
 
 ### Cobertura de Testes
 
-| Módulo | Testes | Status |
-|--------|--------|--------|
-| `auth.service.spec.ts` | 3 | ✅ Passing |
-| `users.service.spec.ts` | 3 | ✅ Passing |
-| `rooms.service.spec.ts` | 3 | ✅ Passing |
-| `reservations.service.spec.ts` | 10 | ✅ Passing |
-| `jwt-auth.guard.spec.ts` | 3 | ✅ Passing |
-| `roles.guard.spec.ts` | 2 | ✅ Passing |
-| `http-exception.filter.spec.ts` | 3 | ✅ Passing |
+A suíte cresceu bastante desde a primeira versão deste README. Hoje ela cobre praticamente todas as camadas da aplicação — services, controllers, guards, decorators, filters, a estratégia JWT e o repositório de reservas:
 
-**Total: 27 testes em 8 suites (100% passing)**
+| Camada | Arquivos de teste |
+|--------|--------------------|
+| Auth | `auth.service.spec.ts`, `auth.controller.spec.ts`, `strategies/jwt.strategy.spec.ts` |
+| Users | `users.service.spec.ts` |
+| Rooms | `rooms.service.spec.ts`, `rooms.controller.spec.ts` |
+| Reservations | `reservations.service.spec.ts`, `reservations.controller.spec.ts`, `reservations.repository.spec.ts` |
+| Common | `guards/jwt-auth.guard.spec.ts`, `guards/roles.guard.spec.ts`, `filters/http-exception.filter.spec.ts`, `decorators/decorators.spec.ts` |
+| Prisma | `prisma.service.spec.ts` |
+| Validação (DTOs) | `validation.dto.spec.ts` |
+| App | `app.controller.spec.ts` |
+
+**Total atual: 78 testes em 16 suites, todos passando.**
+
+Além disso, o `package.json` define um piso de **80% de cobertura** (statements, branches, funções e linhas) via `coverageThreshold` do Jest. Se algum PR reduzir a cobertura abaixo disso, `npm run test:cov` falha — é a rede de segurança contra regressões silenciosas.
 
 ### Executar Testes
 
@@ -768,7 +780,7 @@ npm run test
 # Modo watch (roda ao salvar arquivo)
 npm run test:watch
 
-# Cobertura
+# Cobertura (falha se ficar abaixo de 80%)
 npm run test:cov
 
 # Teste específico
@@ -911,7 +923,8 @@ Cria:
 - ✅ Payload inválido → 400 Bad Request
 - ✅ Conflito de horário → 409 Conflict
 - ✅ Headers de segurança (Helmet, CORS, HSTS)
-- ✅ 27 testes unitários passando
+- ✅ 78 testes unitários passando em 16 suites
+- ✅ Cobertura mínima de 80% (statements, branches, funções e linhas)
 - ✅ Rate limiting funcionando
 - ✅ Banco de dados com seed
 
@@ -1368,7 +1381,7 @@ Este projeto está sob a licença UNLICENSED.
 
 ---
 
-**Última atualização:** 21 de agosto de 2026
+**Última atualização:** 23 de agosto de 2026
 **Status:** ✅ Pronto para Produção
 
 

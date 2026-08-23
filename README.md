@@ -221,6 +221,22 @@ npm run lint
 npm run build
 ```
 
+## Cobertura de testes
+
+Backend e frontend têm uma suíte de testes automatizados (Jest e Vitest, respectivamente) com um piso mínimo de **80% de cobertura** em statements, branches, funções e linhas. Se a cobertura cair abaixo disso, o comando termina com erro — é a forma de garantir que o projeto não regrida silenciosamente.
+
+```bash
+cd backend
+npm run test:cov
+```
+
+```bash
+cd frontend
+npm run test:cov
+```
+
+No momento, os dois lados estão bem acima do piso combinado (na casa dos 90%+ em quase todas as métricas), então há uma boa margem para crescer o código sem quebrar a regra.
+
 ## Documentação detalhada
 
 - [Documentação técnica do backend](backend/README.md)

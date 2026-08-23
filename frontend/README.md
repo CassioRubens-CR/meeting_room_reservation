@@ -202,10 +202,12 @@ npm run preview
 ### Scripts disponíveis
 
 ```bash
-npm run dev       # Servidor Vite
-npm run build     # TypeScript + bundle de produção
-npm run lint      # ESLint
-npm run preview   # Servir o bundle localmente
+npm run dev        # Servidor Vite
+npm run build      # TypeScript + bundle de produção
+npm run lint       # ESLint
+npm run preview    # Servir o bundle localmente
+npm run test       # Suíte de testes (Vitest)
+npm run test:cov   # Suíte de testes com cobertura (mínimo de 80%)
 ```
 
 ---
@@ -438,15 +440,30 @@ O frontend não substitui a autorização do backend. Esconder o card ADMIN é a
 
 ## 🧪 Testes e Validação
 
-O projeto atualmente usa validação de build e lint no frontend:
+O frontend deixou de depender só de lint e build: hoje existe uma suíte automatizada com **Vitest**, **Testing Library** e **jsdom**, cobrindo desde a camada de API até páginas inteiras renderizadas com roteamento real.
 
 ```bash
-npm run lint
-npx tsc -b --pretty false
-npm run build
+npm run test        # roda a suíte uma vez
+npm run test:watch  # modo watch, útil durante o desenvolvimento
+npm run test:cov    # roda com relatório de cobertura
 ```
 
-Checklist manual recomendado:
+A configuração de cobertura fica em `vite.config.ts` (`test.coverage`) e exige, no mínimo, **80% de statements, branches, funções e linhas**. Se um PR reduzir a cobertura abaixo disso, `npm run test:cov` falha — assim como acontece no backend.
+
+O que a suíte cobre hoje:
+
+- **Camada de API** (`api/*.test.ts`): cada função de `auth.ts`, `rooms.ts` e `reservations.ts` é testada contra um `fetch` mockado, além dos casos de erro e resposta sem corpo em `http.ts`.
+- **Stores** (`store/stores.test.ts`): fluxo feliz e de erro de cada ação de `useAuthStore`, `useRoomsStore` e `useReservationsStore`, incluindo hidratação da sessão e mensagens de fallback quando o erro não é uma instância de `Error`.
+- **Hooks** (`hooks/hooks.test.tsx`): `useClickOutside` e `useEscapeKey` isolados em componentes de teste dedicados.
+- **Componentes** (`components/*.test.tsx`): `ConfirmModal` (abertura, confirmação, loading, fechamento por clique fora e por `Escape`), `Layout` (navegação desktop/mobile, menu do usuário, logout) e `ProtectedRoute` (hidratação e redirecionamento).
+- **Páginas** (`pages/*.test.tsx`): login, cadastro, listagem de salas, criação/edição de reserva com validação de duração mínima, fluxo administrativo de salas e reservas (com filtros), perfil e página inicial — cada uma com estados de carregamento, vazio e erro.
+- **`App.tsx`**: redirecionamento para `/login` quando não autenticado, acesso ao dashboard quando autenticado e fallback de rotas desconhecidas.
+
+Não é uma suíte E2E: os testes usam mocks da camada de API (`api/*.ts`) e do `fetch`, então a fonte de verdade sobre regras de negócio (capacidade, conflitos, autorização) continua sendo o backend e seus próprios testes.
+
+### Checklist manual complementar
+
+Além da suíte automatizada, vale conferir manualmente antes de um deploy:
 
 - Login USER redireciona para `/dashboard`.
 - Login ADMIN redireciona para `/dashboard`.
