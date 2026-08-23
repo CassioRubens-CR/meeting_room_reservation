@@ -1,0 +1,13 @@
+
+ RUN  v4.1.11 C:/Users/cassi/Dropbox/Cassio/DEV/Projetos/meeting_room_reservation/frontend
+
+ ✓ src/pages/auth-and-flows.test.tsx > frontend auth and app flows > logs in and redirects to dashboard 1516ms
+ ✓ src/pages/auth-and-flows.test.tsx > frontend auth and app flows > blocks registration when passwords do not match and accepts valid payloads 403ms
+ ✓ src/pages/auth-and-flows.test.tsx > frontend auth and app flows > lists rooms from the API on the rooms page 231ms
+ ✓ src/pages/auth-and-flows.test.tsx > frontend auth and app flows > renders admin reservations with filters and reservation rows 282ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  15:12:54
+   Duration  20.21s (transform 3.83s, setup 2.35s, import 5.05s, tests 2.45s, environment 8.60s)
+
