@@ -85,6 +85,10 @@ export class ReservationsService {
     return this.repository.findByUser(userId);
   }
 
+  findAll() {
+    return this.repository.findAll();
+  }
+
   async update(
     id: string,
     userId: string,

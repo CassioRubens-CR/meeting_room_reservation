@@ -76,4 +76,21 @@ export class ReservationsRepository {
       orderBy: [{ date: 'asc' }, { startTime: 'asc' }],
     });
   }
+
+  findAll() {
+    return this.prisma.reservation.findMany({
+      include: {
+        room: true,
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+          },
+        },
+      },
+      orderBy: [{ date: 'asc' }, { startTime: 'asc' }],
+    });
+  }
 }

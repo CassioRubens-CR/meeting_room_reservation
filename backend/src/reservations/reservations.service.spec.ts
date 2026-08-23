@@ -12,6 +12,7 @@ describe('ReservationsService', () => {
     create: jest.fn<() => Promise<unknown>>(),
     update: jest.fn<() => Promise<unknown>>(),
     findByUser: jest.fn<() => Promise<unknown>>(),
+    findAll: jest.fn<() => Promise<unknown>>(),
   };
   const service = new ReservationsService(
     repository as unknown as ReservationsRepository,
@@ -150,6 +151,20 @@ describe('ReservationsService', () => {
 
     await expect(service.findMine('user-1')).resolves.toEqual(reservations);
     expect(repository.findByUser).toHaveBeenCalledWith('user-1');
+  });
+
+  it('lists all reservations for administrators', async () => {
+    const reservations = [
+      {
+        id: 'reservation-1',
+        user: { id: 'user-1', name: 'User', email: 'user@example.com' },
+        room: { id: 'room-1', name: 'Room A' },
+      },
+    ];
+    repository.findAll.mockResolvedValue(reservations);
+
+    await expect(service.findAll()).resolves.toEqual(reservations);
+    expect(repository.findAll).toHaveBeenCalledTimes(1);
   });
 
   it('allows the owner to update a reservation', async () => {

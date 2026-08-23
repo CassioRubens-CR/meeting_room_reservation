@@ -1,6 +1,16 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+} from '@nestjs/common';
+import { Role } from '@prisma/client';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import type { CurrentUserPayload } from '../common/decorators/current-user.decorator';
+import { Roles } from '../common/decorators/roles.decorator';
 import { CreateReservationDto } from './dto/create-reservation.dto';
 import { UpdateReservationDto } from './dto/update-reservation.dto';
 import { ReservationsService } from './reservations.service';
@@ -12,6 +22,12 @@ export class ReservationsController {
   @Get('me')
   findMine(@CurrentUser() user: CurrentUserPayload) {
     return this.reservationsService.findMine(user.sub);
+  }
+
+  @Get()
+  @Roles(Role.ADMIN)
+  findAll() {
+    return this.reservationsService.findAll();
   }
 
   @Post()
