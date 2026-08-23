@@ -219,10 +219,11 @@ describe('rooms store', () => {
   it('updates a room in the list', async () => {
     useRoomsStore.setState({ rooms: [mockRoom] })
 
-    vi.spyOn(api, 'updateRoom').mockResolvedValue({
+    const updatedRoom: typeof mockRoom = {
       ...mockRoom,
       name: 'Updated Room',
-    })
+    }
+    vi.spyOn(api, 'updateRoom').mockResolvedValue(updatedRoom)
 
     const { updateRoom } = useRoomsStore.getState()
     await updateRoom('room-1', { name: 'Updated Room' }, 'token-abc')
@@ -236,7 +237,7 @@ describe('rooms store', () => {
       rooms: [mockRoom, { ...mockRoom, id: 'room-2', name: 'Room B' }],
     })
 
-    vi.spyOn(api, 'deleteRoom').mockResolvedValue(undefined)
+    vi.spyOn(api, 'deleteRoom').mockResolvedValue(mockRoom)
 
     const { deleteRoom } = useRoomsStore.getState()
     await deleteRoom('room-1', 'token-abc')
@@ -282,7 +283,8 @@ describe('reservations store', () => {
   it('fetches all reservations with filters', async () => {
     const adminRes: AdminReservation = {
       ...mockReservation,
-      userName: 'Test User',
+      user: mockUser,
+      room: mockRoom,
     }
     vi.spyOn(api, 'fetchAllReservations').mockResolvedValue([adminRes])
 
@@ -291,7 +293,8 @@ describe('reservations store', () => {
 
     const state = useReservationsStore.getState()
     expect(state.adminReservations).toHaveLength(1)
-    expect(state.adminReservations[0].userName).toBe('Test User')
+    expect(state.adminReservations[0].user.name).toBe('Test User')
+    expect(state.adminReservations[0].room.name).toBe('Room A')
   })
 
   it('creates a reservation and adds to list', async () => {
