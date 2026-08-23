@@ -44,7 +44,9 @@ export function CreateReservationPage() {
   useEffect(() => {
     clearError()
     if (token && rooms.length === 0) {
-      void fetchRooms(token)
+      fetchRooms(token).catch(() => {
+        // Error is exposed by the rooms store.
+      })
     }
   }, [clearError, fetchRooms, rooms.length, token])
 

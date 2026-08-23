@@ -10,5 +10,23 @@ export default defineConfig({
     globals: true,
     pool: 'threads',
     maxWorkers: 1,
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'html', 'lcov'],
+      include: ['src/**/*.{ts,tsx}'],
+      exclude: [
+        'src/main.tsx',
+        'src/vite-env.d.ts',
+        'src/test/**',
+        'src/**/*.test.{ts,tsx}',
+        'src/**/*.d.ts',
+      ],
+      thresholds: {
+        lines: 80,
+        statements: 80,
+        functions: 80,
+        branches: 80,
+      },
+    },
   },
 })

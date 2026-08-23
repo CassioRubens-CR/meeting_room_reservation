@@ -10,14 +10,18 @@ export function RoomsPage() {
 
   useEffect(() => {
     if (token) {
-      void fetchRooms(token)
+      fetchRooms(token).catch(() => {
+        // Error is exposed by the rooms store.
+      })
     }
   }, [fetchRooms, token])
 
   const handleRetry = () => {
     clearError()
     if (token) {
-      void fetchRooms(token)
+      fetchRooms(token).catch(() => {
+        // Error is exposed by the rooms store.
+      })
     }
   }
 

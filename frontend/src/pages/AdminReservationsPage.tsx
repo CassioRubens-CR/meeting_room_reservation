@@ -44,26 +44,32 @@ export function AdminReservationsPage() {
 
   const loadReservations = (filters = { date, roomId, userId }) => {
     if (token) {
-      void fetchAllReservations(
+      fetchAllReservations(
         {
           date: filters.date || undefined,
           roomId: filters.roomId || undefined,
           userId: filters.userId.trim() || undefined,
         },
         token,
-      )
+      ).catch(() => {
+        // Error is exposed by the reservations store.
+      })
     }
   }
 
   useEffect(() => {
     if (token && isAdmin) {
       if (rooms.length === 0) {
-        void fetchRooms(token)
+        fetchRooms(token).catch(() => {
+          // Error is exposed by the rooms store.
+        })
       }
-      void fetchAllReservations(
+      fetchAllReservations(
         { date: undefined, roomId: undefined, userId: undefined },
         token,
-      )
+      ).catch(() => {
+        // Error is exposed by the reservations store.
+      })
     }
   }, [fetchAllReservations, fetchRooms, isAdmin, rooms.length, token])
 

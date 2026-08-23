@@ -65,10 +65,14 @@ export function EditReservationPage() {
   useEffect(() => {
     if (token) {
       if (reservations.length === 0) {
-        void fetchMyReservations(token)
+        fetchMyReservations(token).catch(() => {
+          // Error is exposed by the reservations store.
+        })
       }
       if (rooms.length === 0) {
-        void fetchRooms(token)
+        fetchRooms(token).catch(() => {
+          // Error is exposed by the rooms store.
+        })
       }
     }
   }, [fetchMyReservations, fetchRooms, reservations.length, rooms.length, token])

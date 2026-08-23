@@ -49,4 +49,24 @@ describe('HTTP client', () => {
       message: 'E-mail inválido | Senha obrigatória',
     })
   })
+
+  it('returns null when the response has no JSON body', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(null, { status: 204 }))
+
+    await expect(request('/rooms/room-1', { method: 'DELETE' })).resolves.toBeNull()
+  })
+
+  it('falls back to a default message when the error payload has no message', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify({}), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      }),
+    )
+
+    await expect(request('/rooms', { method: 'GET' })).rejects.toMatchObject({
+      status: 500,
+      message: 'Falha na requisicao',
+    })
+  })
 })
