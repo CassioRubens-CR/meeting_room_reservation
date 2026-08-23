@@ -143,7 +143,7 @@ describe('AdminReservationsPage extra states', () => {
     expect(await screen.findByText('Falha ao buscar todas as reservas')).toBeInTheDocument()
   })
 
-  it('filters reservations by date, room and user id, then clears the filters', async () => {
+  it('filters reservations by date and room, then clears the filters', async () => {
     useAuthStore.setState({ user: adminUser })
     vi.spyOn(api, 'fetchRooms').mockResolvedValue([mockRoom])
     const fetchAllSpy = vi.spyOn(api, 'fetchAllReservations').mockResolvedValue([])
@@ -158,12 +158,11 @@ describe('AdminReservationsPage extra states', () => {
 
     fireEvent.change(screen.getByLabelText('Data'), { target: { value: '2026-08-23' } })
     fireEvent.change(screen.getByLabelText('Sala'), { target: { value: 'room-1' } })
-    fireEvent.change(screen.getByLabelText('ID do usuário'), { target: { value: ' user-1 ' } })
     fireEvent.click(screen.getByRole('button', { name: 'Filtrar' }))
 
     await waitFor(() => {
       expect(fetchAllSpy).toHaveBeenLastCalledWith(
-        { date: '2026-08-23', roomId: 'room-1', userId: 'user-1' },
+        { date: '2026-08-23', roomId: 'room-1' },
         'token-abc',
       )
     })
@@ -172,7 +171,7 @@ describe('AdminReservationsPage extra states', () => {
 
     await waitFor(() => {
       expect(fetchAllSpy).toHaveBeenLastCalledWith(
-        { date: undefined, roomId: undefined, userId: undefined },
+        { date: undefined, roomId: undefined },
         'token-abc',
       )
     })

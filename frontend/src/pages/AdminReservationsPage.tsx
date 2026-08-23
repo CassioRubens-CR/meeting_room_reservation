@@ -38,17 +38,15 @@ export function AdminReservationsPage() {
   } = useReservationsStore()
   const [date, setDate] = useState('')
   const [roomId, setRoomId] = useState('')
-  const [userId, setUserId] = useState('')
 
   const isAdmin = user?.role === 'ADMIN'
 
-  const loadReservations = (filters = { date, roomId, userId }) => {
+  const loadReservations = (filters = { date, roomId }) => {
     if (token) {
       fetchAllReservations(
         {
           date: filters.date || undefined,
           roomId: filters.roomId || undefined,
-          userId: filters.userId.trim() || undefined,
         },
         token,
       ).catch(() => {
@@ -82,9 +80,8 @@ export function AdminReservationsPage() {
   const handleClear = () => {
     setDate('')
     setRoomId('')
-    setUserId('')
     clearError()
-    loadReservations({ date: '', roomId: '', userId: '' })
+    loadReservations({ date: '', roomId: '' })
   }
 
   return (
@@ -114,7 +111,7 @@ export function AdminReservationsPage() {
                 Todas as reservas
               </h1>
               <p className="mt-2 text-sm text-stone-600">
-                Consulte reservas por data, sala ou usuário.
+                Consulte reservas por data ou sala.
               </p>
             </div>
             <button
@@ -127,7 +124,7 @@ export function AdminReservationsPage() {
           </div>
 
           <section className="rounded-xl border border-brand-200 bg-white p-4 shadow-sm sm:p-6">
-            <form onSubmit={handleSubmit} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:items-end">
+            <form onSubmit={handleSubmit} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:items-end">
               <div>
                 <label htmlFor="date" className="block text-sm font-medium text-stone-700">
                   Data
@@ -157,19 +154,6 @@ export function AdminReservationsPage() {
                     </option>
                   ))}
                 </select>
-              </div>
-              <div>
-                <label htmlFor="userId" className="block text-sm font-medium text-stone-700">
-                  ID do usuário
-                </label>
-                <input
-                  id="userId"
-                  type="text"
-                  value={userId}
-                  onChange={(event) => setUserId(event.target.value)}
-                  placeholder="UUID do usuário"
-                  className="mt-1 min-h-11 w-full rounded-lg border border-stone-300 px-3 py-3 text-sm text-stone-900 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
-                />
               </div>
               <div className="flex gap-2 sm:col-span-2 lg:col-span-1">
                 <button
@@ -233,7 +217,10 @@ export function AdminReservationsPage() {
                           {reservation.room.location || 'Localização não informada'}
                         </p>
                       </div>
-                      <span className="shrink-0 rounded-full bg-stone-100 px-2 py-1 text-xs font-medium text-stone-700">
+                      <span className={`shrink-0 rounded-full px-2 py-1 text-xs font-medium ${isCancelled
+                          ? 'bg-stone-100 text-stone-600'
+                          : 'bg-accent-100 text-accent-900'
+                        }`}>
                         {getStatusLabel(reservation)}
                       </span>
                     </div>

@@ -93,6 +93,21 @@ export function HomePage() {
             </p>
           </Link>
         )}
+
+        {user?.role === 'ADMIN' && (
+          <Link
+            to="/admin/reservations"
+            className="rounded-lg border border-stone-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md sm:p-6"
+          >
+            <div className="mb-3 inline-flex items-center justify-center rounded-lg bg-brand-100 p-2 sm:p-3">
+              <span className="text-lg sm:text-2xl">📋</span>
+            </div>
+            <h3 className="font-medium text-stone-900 sm:text-lg">Todas as Reservas</h3>
+            <p className="mt-2 text-xs text-stone-600 sm:text-sm">
+              Consultar e filtrar reservas de todos os usuários.
+            </p>
+          </Link>
+        )}
       </div>
     </Layout>
   )

@@ -231,6 +231,5 @@ describe('frontend auth and app flows', () => {
     expect(screen.getAllByText('Usuário Teste').length).toBeGreaterThan(0)
     expect(screen.getByLabelText(/data/i)).toBeInTheDocument()
     expect(screen.getByLabelText(/sala/i)).toBeInTheDocument()
-    expect(screen.getByLabelText(/id do usuário/i)).toBeInTheDocument()
   })
 })
