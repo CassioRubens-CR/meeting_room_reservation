@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { ConflictException, BadRequestException } from '@nestjs/common';
 import { CreateReservationDto } from './dto/create-reservation.dto';
+import { ReservationFiltersDto } from './dto/reservation-filters.dto';
 import { ReservationsRepository } from './reservations.repository';
 import { ReservationsService } from './reservations.service';
 
@@ -30,6 +31,7 @@ describe('ReservationsService', () => {
       date: '2099-01-01',
       startTime: '10:00',
       endTime: '10:30',
+      attendeesCount: 1,
     };
 
     await expect(service.create('user-1', dto)).rejects.toThrow(
@@ -44,6 +46,7 @@ describe('ReservationsService', () => {
       date: '2099-01-01',
       startTime: '11:00',
       endTime: '10:00',
+      attendeesCount: 1,
     };
 
     await expect(service.create('user-1', dto)).rejects.toThrow(
@@ -58,6 +61,7 @@ describe('ReservationsService', () => {
       date: '2020-01-01',
       startTime: '10:00',
       endTime: '11:00',
+      attendeesCount: 1,
     };
 
     await expect(service.create('user-1', dto)).rejects.toThrow(
@@ -73,6 +77,7 @@ describe('ReservationsService', () => {
       date: '2099-01-01',
       startTime: '10:00',
       endTime: '11:00',
+      attendeesCount: 1,
     };
 
     await expect(service.create('user-1', dto)).rejects.toThrow(
@@ -88,9 +93,10 @@ describe('ReservationsService', () => {
       date: '2099-01-01',
       startTime: '10:00',
       endTime: '11:00',
+      attendeesCount: 1,
     };
 
-    await expect(service.create('user-1', dto)).resolves.toEqual({
+    await expect(service.create('user-1', dto, 'USER')).resolves.toEqual({
       id: 'reservation-1',
     });
     expect(repository.create).toHaveBeenCalledWith(
@@ -104,14 +110,18 @@ describe('ReservationsService', () => {
     repository.create.mockResolvedValue({ id: 'reservation-1' });
 
     await expect(
-      service.create('user-1', {
-        roomId: 'room-1',
-        date: '2099-01-01',
-        startTime: '10:00',
-        endTime: '11:00',
-        attendeesCount: 4,
-        justification: 'Reunião do time comercial',
-      }, 'ADMIN'),
+      service.create(
+        'user-1',
+        {
+          roomId: 'room-1',
+          date: '2099-01-01',
+          startTime: '10:00',
+          endTime: '11:00',
+          attendeesCount: 4,
+          justification: 'Reunião do time comercial',
+        },
+        'ADMIN',
+      ),
     ).resolves.toEqual({ id: 'reservation-1' });
   });
 
@@ -120,28 +130,40 @@ describe('ReservationsService', () => {
     repository.sumOverlappingAttendees.mockResolvedValue(6);
 
     await expect(
-      service.create('user-1', {
-        roomId: 'room-1',
-        date: '2099-01-01',
-        startTime: '10:00',
-        endTime: '11:00',
-        attendeesCount: 5,
-        justification: 'Reunião ampliada',
-      }, 'ADMIN'),
-    ).rejects.toThrow('A sala não possui capacidade suficiente nesse intervalo');
+      service.create(
+        'user-1',
+        {
+          roomId: 'room-1',
+          date: '2099-01-01',
+          startTime: '10:00',
+          endTime: '11:00',
+          attendeesCount: 5,
+          justification: 'Reunião ampliada',
+        },
+        'ADMIN',
+      ),
+    ).rejects.toThrow(
+      'A sala não possui capacidade suficiente nesse intervalo',
+    );
     expect(repository.create).not.toHaveBeenCalled();
   });
 
   it('requires justification when reserving more than one seat', async () => {
     await expect(
-      service.create('user-1', {
-        roomId: 'room-1',
-        date: '2099-01-01',
-        startTime: '10:00',
-        endTime: '11:00',
-        attendeesCount: 2,
-      }, 'ADMIN'),
-    ).rejects.toThrow('Informe uma justificativa para reservar mais de 1 lugar');
+      service.create(
+        'user-1',
+        {
+          roomId: 'room-1',
+          date: '2099-01-01',
+          startTime: '10:00',
+          endTime: '11:00',
+          attendeesCount: 2,
+        },
+        'ADMIN',
+      ),
+    ).rejects.toThrow(
+      'Informe uma justificativa para reservar mais de 1 lugar',
+    );
     expect(repository.sumOverlappingAttendees).not.toHaveBeenCalled();
   });
 
@@ -167,11 +189,31 @@ describe('ReservationsService', () => {
     expect(repository.findAll).toHaveBeenCalledTimes(1);
   });
 
+  it('passes date, room, and user filters to the repository', async () => {
+    repository.findAll.mockResolvedValue([]);
+    const filters: ReservationFiltersDto = {
+      date: '2099-01-15',
+      roomId: 'room-1',
+      userId: 'user-1',
+    };
+
+    await expect(service.findAll(filters)).resolves.toEqual([]);
+    expect(repository.findAll).toHaveBeenCalledWith({
+      date: {
+        gte: new Date('2099-01-15T00:00:00'),
+        lt: new Date('2099-01-16T00:00:00'),
+      },
+      roomId: 'room-1',
+      userId: 'user-1',
+    });
+  });
+
   it('allows the owner to update a reservation', async () => {
     repository.findById.mockResolvedValue({
       id: 'reservation-1',
       userId: 'user-1',
       roomId: 'room-1',
+
       date: new Date('2099-01-01T00:00:00.000Z'),
       startTime: new Date('2099-01-01T10:00:00.000Z'),
       endTime: new Date('2099-01-01T11:00:00.000Z'),

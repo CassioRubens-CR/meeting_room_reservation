@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { CreateReservationDto } from './dto/create-reservation.dto';
 import { UpdateReservationDto } from './dto/update-reservation.dto';
+import { ReservationFiltersDto } from './dto/reservation-filters.dto';
 import { ReservationsRepository } from './reservations.repository';
 
 @Injectable()
@@ -31,9 +32,7 @@ export class ReservationsService {
     const minimumDuration = 60 * 60 * 1000;
 
     if (durationInMilliseconds < minimumDuration) {
-      throw new BadRequestException(
-        'Duração mínima da reserva é de 1 hora',
-      );
+      throw new BadRequestException('Duração mínima da reserva é de 1 hora');
     }
 
     if (start < new Date()) {
@@ -56,7 +55,11 @@ export class ReservationsService {
       );
     }
 
-    this.validateAttendeesCount(attendeesCount, room.capacity, dto.justification);
+    this.validateAttendeesCount(
+      attendeesCount,
+      room.capacity,
+      dto.justification,
+    );
 
     const occupiedSeats = await this.repository.sumOverlappingAttendees(
       dto.roomId,
@@ -85,8 +88,19 @@ export class ReservationsService {
     return this.repository.findByUser(userId);
   }
 
-  findAll() {
-    return this.repository.findAll();
+  findAll(filters: ReservationFiltersDto = {}) {
+    const dateRange = filters.date
+      ? {
+          gte: this.toDate(filters.date, '00:00'),
+          lt: this.toDate(this.addOneDay(filters.date), '00:00'),
+        }
+      : undefined;
+
+    return this.repository.findAll({
+      date: dateRange,
+      roomId: filters.roomId,
+      userId: filters.userId,
+    });
   }
 
   async update(
@@ -110,8 +124,13 @@ export class ReservationsService {
       throw new NotFoundException('Sala não encontrada');
     }
 
-    const attendeesCount = dto.attendeesCount ?? reservation.attendeesCount ?? 1;
-    this.validateAttendeesCount(attendeesCount, room.capacity, dto.justification ?? reservation.justification ?? undefined);
+    const attendeesCount =
+      dto.attendeesCount ?? reservation.attendeesCount ?? 1;
+    this.validateAttendeesCount(
+      attendeesCount,
+      room.capacity,
+      dto.justification ?? reservation.justification ?? undefined,
+    );
 
     const occupiedSeats = await this.repository.sumOverlappingAttendees(
       targetRoomId,
@@ -132,7 +151,8 @@ export class ReservationsService {
       startTime: start,
       endTime: end,
       attendeesCount,
-      justification: dto.justification ?? reservation.justification ?? undefined,
+      justification:
+        dto.justification ?? reservation.justification ?? undefined,
     });
   }
 
@@ -167,9 +187,7 @@ export class ReservationsService {
     }
 
     if (end.getTime() - start.getTime() < 60 * 60 * 1000) {
-      throw new BadRequestException(
-        'Duração mínima da reserva é de 1 hora',
-      );
+      throw new BadRequestException('Duração mínima da reserva é de 1 hora');
     }
 
     if (start < new Date()) {
@@ -207,5 +225,11 @@ export class ReservationsService {
 
   private toDate(date: string, time: string): Date {
     return new Date(`${date}T${time}:00`);
+  }
+
+  private addOneDay(date: string): string {
+    const value = new Date(`${date}T00:00:00`);
+    value.setDate(value.getDate() + 1);
+    return value.toISOString().slice(0, 10);
   }
 }

@@ -37,13 +37,21 @@ export class UpdateReservationDto {
   endTime?: string;
 
   @IsOptional()
-  @IsInt({ message: 'A quantidade de participantes deve ser um número inteiro' })
+  @IsInt({
+    message: 'A quantidade de participantes deve ser um número inteiro',
+  })
   @Min(1, { message: 'A reserva deve ter pelo menos 1 participante' })
   attendeesCount?: number;
 
-  @ValidateIf((reservation) => reservation.attendeesCount !== undefined && reservation.attendeesCount > 1)
+  @ValidateIf(
+    (reservation: { attendeesCount?: number }) =>
+      reservation.attendeesCount !== undefined &&
+      reservation.attendeesCount > 1,
+  )
   @IsString({ message: 'A justificativa deve ser um texto' })
-  @IsNotEmpty({ message: 'A justificativa é obrigatória para mais de 1 participante' })
+  @IsNotEmpty({
+    message: 'A justificativa é obrigatória para mais de 1 participante',
+  })
   @IsOptional()
   justification?: string;
 }

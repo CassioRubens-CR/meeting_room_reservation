@@ -19,8 +19,37 @@ export interface UpdateReservationInput {
   justification?: string
 }
 
+export interface ReservationFilters {
+  date?: string
+  roomId?: string
+  userId?: string
+}
+
 export function fetchMyReservations(token: string) {
   return request<Reservation[]>('/reservations/me', {
+    method: 'GET',
+    token,
+  })
+}
+
+export function fetchAllReservations(
+  filters: ReservationFilters,
+  token: string,
+) {
+  const params = new URLSearchParams()
+
+  if (filters.date) {
+    params.set('date', filters.date)
+  }
+  if (filters.roomId) {
+    params.set('roomId', filters.roomId)
+  }
+  if (filters.userId) {
+    params.set('userId', filters.userId)
+  }
+
+  const query = params.toString()
+  return request<Reservation[]>(`/reservations${query ? `?${query}` : ''}`, {
     method: 'GET',
     token,
   })

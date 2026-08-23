@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import { Role } from '@prisma/client';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
@@ -13,6 +14,7 @@ import type { CurrentUserPayload } from '../common/decorators/current-user.decor
 import { Roles } from '../common/decorators/roles.decorator';
 import { CreateReservationDto } from './dto/create-reservation.dto';
 import { UpdateReservationDto } from './dto/update-reservation.dto';
+import { ReservationFiltersDto } from './dto/reservation-filters.dto';
 import { ReservationsService } from './reservations.service';
 
 @Controller('reservations')
@@ -26,8 +28,8 @@ export class ReservationsController {
 
   @Get()
   @Roles(Role.ADMIN)
-  findAll() {
-    return this.reservationsService.findAll();
+  findAll(@Query() filters: ReservationFiltersDto) {
+    return this.reservationsService.findAll(filters);
   }
 
   @Post()

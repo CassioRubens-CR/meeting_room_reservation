@@ -77,8 +77,17 @@ export class ReservationsRepository {
     });
   }
 
-  findAll() {
+  findAll(filters: {
+    date?: { gte: Date; lt: Date };
+    roomId?: string;
+    userId?: string;
+  }) {
     return this.prisma.reservation.findMany({
+      where: {
+        ...(filters.date ? { date: filters.date } : {}),
+        ...(filters.roomId ? { roomId: filters.roomId } : {}),
+        ...(filters.userId ? { userId: filters.userId } : {}),
+      },
       include: {
         room: true,
         user: {
