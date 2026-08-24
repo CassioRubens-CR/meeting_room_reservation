@@ -15,20 +15,23 @@ Sistema web para gerenciamento e reserva de salas de reunião. Usuários podem c
 - Menu responsivo para desktop e mobile.
 - Confirmação visual para exclusão de salas e cancelamento de reservas.
 
-## Aplicação publicada
+## 🚀 Aplicação publicada - Links do Projeto & Demonstração
 
 A aplicação completa está disponível para teste no Render:
 
-**[Acessar o Meeting Room Reservation](https://meeting-room-frontend-1hc3.onrender.com)**
+* **Aplicaçao Rodando:**[Acessar o Meeting Room Reservation](https://meeting-room-frontend-1hc3.onrender.com)**
 
 Serviços publicados:
 
 - Frontend: [https://meeting-room-frontend-1hc3.onrender.com](https://meeting-room-frontend-1hc3.onrender.com)
 - Backend/API: [https://meeting-room-backend-zi7k.onrender.com](https://meeting-room-backend-zi7k.onrender.com)
 
-O projeto está hospedado em um plano gratuito de teste. Por isso, a primeira abertura pode demorar alguns segundos enquanto o serviço é reativado. Também podem ocorrer instabilidades temporárias, reinicializações, indisponibilidade eventual ou perda de dados do ambiente publicado.
+> ⚠️ **Nota Importante para Avaliação (Cold Start):**
+> O projeto está hospedado na camada gratuita da plataforma **Render**. Por limitações desse plano, o servidor do back-end entra em modo de repouso após 15 minutos de inatividade. 
+> 
+> * **Primeiro Acesso:** O primeiro carregamento, login ou requisição pode demorar **de 1 a 2 minutos** para responder (tempo que a hospedagem leva para "acordar" o container). Após esse aquecimento, o sistema opera com velocidade normal.
+> * **Persistência do Banco:** Para fins de teste e desafio técnico, a aplicação utiliza **SQLite com Prisma** rodando em disco temporário efêmero. O banco reseta para o estado inicial padrão (via *seed*) a cada reinicialização automática do servidor.
 
-Para uma utilização real, seria necessário usar uma hospedagem com recursos de produção, banco de dados persistente, monitoramento, backups e configurações de segurança adequadas.
 
 ## Tecnologias
 
