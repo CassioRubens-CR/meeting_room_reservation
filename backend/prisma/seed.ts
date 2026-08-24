@@ -34,7 +34,7 @@ async function main() {
     data: {
       name: 'Sala de Reunião A',
       capacity: 10,
-      location: '1st Floor',
+      location: '1º Andar',
     },
   });
 
@@ -42,7 +42,7 @@ async function main() {
     data: {
       name: 'Sala de Reunião B',
       capacity: 20,
-      location: '2nd Floor',
+      location: '2º Andar',
     },
   });
 

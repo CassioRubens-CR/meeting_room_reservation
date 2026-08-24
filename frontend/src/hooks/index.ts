@@ -1,2 +1,2 @@
-export { useClickOutside } from './useClickOutside'
-export { useEscapeKey } from './useEscapeKey'
+export { useClickOutside } from './useClickOutside/useClickOutside'
+export { useEscapeKey } from './useEscapeKey/useEscapeKey'

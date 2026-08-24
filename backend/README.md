@@ -362,14 +362,14 @@ Authorization: Bearer {accessToken}
     "id": "uuid",
     "name": "Meeting Room A",
     "capacity": 10,
-    "location": "1st Floor",
+    "location": "1º Andar",
     "createdAt": "2026-08-21T16:38:32.711Z"
   },
   {
     "id": "uuid",
     "name": "Meeting Room B",
     "capacity": 20,
-    "location": "2nd Floor",
+    "location": "2º Andar",
     "createdAt": "2026-08-21T16:38:32.733Z"
   }
 ]
