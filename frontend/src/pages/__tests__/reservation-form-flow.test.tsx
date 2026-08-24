@@ -204,9 +204,17 @@ describe('reservation form flows', () => {
     fireEvent.change(screen.getByLabelText(/data/i), {
       target: { value: '2026-08-24' },
     })
+    const justificationField = screen.getByLabelText(/justificativa/i)
+    expect(justificationField).toBeInTheDocument()
+    expect(justificationField).not.toBeRequired()
+    fireEvent.change(screen.getByLabelText(/participantes/i), {
+      target: { value: '99' },
+    })
+    expect(screen.getByLabelText(/participantes/i)).toHaveValue(8)
     fireEvent.change(screen.getByLabelText(/participantes/i), {
       target: { value: '3' },
     })
+    expect(justificationField).toBeRequired()
     fireEvent.change(screen.getByLabelText(/justificativa/i), {
       target: { value: '  Planejamento trimestral  ' },
     })
@@ -320,6 +328,10 @@ describe('reservation form flows', () => {
     fireEvent.change(screen.getByLabelText(/data/i), {
       target: { value: todayDate },
     })
+    fireEvent.change(screen.getByLabelText(/participantes/i), {
+      target: { value: '99' },
+    })
+    expect(screen.getByLabelText(/participantes/i)).toHaveValue(8)
     fireEvent.change(screen.getByLabelText(/participantes/i), {
       target: { value: '3' },
     })

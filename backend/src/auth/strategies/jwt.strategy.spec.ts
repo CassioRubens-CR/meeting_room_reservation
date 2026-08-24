@@ -8,9 +8,7 @@ describe('JwtStrategy', () => {
       getOrThrow: jest.fn().mockReturnValue('test-secret'),
     };
 
-    const strategy = new JwtStrategy(
-      configService as unknown as ConfigService,
-    );
+    const strategy = new JwtStrategy(configService as unknown as ConfigService);
 
     expect(configService.getOrThrow).toHaveBeenCalledWith('JWT_SECRET');
     expect(strategy).toBeInstanceOf(JwtStrategy);
@@ -20,9 +18,7 @@ describe('JwtStrategy', () => {
     const configService = {
       getOrThrow: jest.fn().mockReturnValue('test-secret'),
     };
-    const strategy = new JwtStrategy(
-      configService as unknown as ConfigService,
-    );
+    const strategy = new JwtStrategy(configService as unknown as ConfigService);
     const payload = {
       sub: 'user-1',
       email: 'user@example.com',

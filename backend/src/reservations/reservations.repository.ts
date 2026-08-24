@@ -33,6 +33,40 @@ export class ReservationsRepository {
     return this.prisma.reservation.findUnique({ where: { id } });
   }
 
+  findConfirmedOverlappingByUser(
+    userId: string,
+    roomId: string,
+    start: Date,
+    end: Date,
+  ) {
+    return this.prisma.reservation.findFirst({
+      where: {
+        userId,
+        roomId,
+        status: 'CONFIRMED',
+        startTime: { lt: end },
+        endTime: { gt: start },
+      },
+    });
+  }
+
+  findConfirmedByUserAndTime(
+    userId: string,
+    roomId: string,
+    start: Date,
+    end: Date,
+  ) {
+    return this.prisma.reservation.findFirst({
+      where: {
+        userId,
+        roomId,
+        status: 'CONFIRMED',
+        startTime: { equals: start },
+        endTime: { equals: end },
+      },
+    });
+  }
+
   update(
     id: string,
     data: {

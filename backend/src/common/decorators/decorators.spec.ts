@@ -2,10 +2,7 @@ import 'reflect-metadata';
 import { describe, expect, it } from '@jest/globals';
 import { ExecutionContext } from '@nestjs/common';
 import { Role } from '@prisma/client';
-import {
-  CurrentUserPayload,
-  getCurrentUser,
-} from './current-user.decorator';
+import { CurrentUserPayload, getCurrentUser } from './current-user.decorator';
 import { IS_PUBLIC_KEY, Public } from './public.decorator';
 import { ROLES_KEY, Roles } from './roles.decorator';
 

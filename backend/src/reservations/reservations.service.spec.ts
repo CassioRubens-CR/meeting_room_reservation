@@ -9,6 +9,8 @@ describe('ReservationsService', () => {
   const repository = {
     findRoom: jest.fn<() => Promise<unknown>>(),
     sumOverlappingAttendees: jest.fn<() => Promise<number>>(),
+    findConfirmedOverlappingByUser: jest.fn<() => Promise<unknown>>(),
+    findConfirmedByUserAndTime: jest.fn<() => Promise<unknown>>(),
     findById: jest.fn<() => Promise<unknown>>(),
     create: jest.fn<() => Promise<unknown>>(),
     update: jest.fn<() => Promise<unknown>>(),
@@ -23,6 +25,8 @@ describe('ReservationsService', () => {
     jest.clearAllMocks();
     repository.findRoom.mockResolvedValue({ capacity: 10 });
     repository.sumOverlappingAttendees.mockResolvedValue(0);
+    repository.findConfirmedOverlappingByUser.mockResolvedValue(undefined);
+    repository.findConfirmedByUserAndTime.mockResolvedValue(undefined);
   });
 
   it('rejects reservations shorter than one hour', async () => {
@@ -104,6 +108,129 @@ describe('ReservationsService', () => {
     );
   });
 
+  it('rejects a regular user overlapping their reservation in the same room', async () => {
+    repository.findConfirmedOverlappingByUser.mockResolvedValue({
+      id: 'reservation-1',
+    });
+
+    await expect(
+      service.create(
+        'user-1',
+        {
+          roomId: 'room-1',
+          date: '2099-01-01',
+          startTime: '10:30',
+          endTime: '11:30',
+          attendeesCount: 1,
+        },
+        'USER',
+      ),
+    ).rejects.toThrow(
+      'Você já possui uma reserva para esta sala neste horário',
+    );
+    expect(repository.create).not.toHaveBeenCalled();
+  });
+
+  it('merges an admin reservation with an existing identical reservation', async () => {
+    repository.findConfirmedByUserAndTime.mockResolvedValue({
+      id: 'reservation-1',
+      attendeesCount: 2,
+      justification: 'Reunião inicial',
+    });
+    repository.update.mockResolvedValue({
+      id: 'reservation-1',
+      attendeesCount: 3,
+      justification: 'Reunião ampliada',
+    });
+
+    await expect(
+      service.create(
+        'admin-1',
+        {
+          roomId: 'room-1',
+          date: '2099-01-01',
+          startTime: '10:00',
+          endTime: '11:00',
+          attendeesCount: 1,
+          justification: 'Reunião ampliada',
+        },
+        'ADMIN',
+      ),
+    ).resolves.toEqual({
+      id: 'reservation-1',
+      attendeesCount: 3,
+      justification: 'Reunião ampliada',
+    });
+    expect(repository.update).toHaveBeenCalledWith('reservation-1', {
+      attendeesCount: 3,
+      justification: 'Reunião ampliada',
+    });
+    expect(repository.create).not.toHaveBeenCalled();
+  });
+
+  it('allows an admin to add all remaining seats to an existing reservation', async () => {
+    repository.findConfirmedByUserAndTime.mockResolvedValue({
+      id: 'reservation-1',
+      attendeesCount: 2,
+      justification: 'Reunião inicial',
+    });
+    repository.sumOverlappingAttendees.mockResolvedValue(1);
+    repository.update.mockResolvedValue({
+      id: 'reservation-1',
+      attendeesCount: 9,
+      justification: 'Reunião ampliada',
+    });
+
+    await expect(
+      service.create(
+        'admin-1',
+        {
+          roomId: 'room-1',
+          date: '2099-01-01',
+          startTime: '10:00',
+          endTime: '11:00',
+          attendeesCount: 7,
+          justification: 'Reunião ampliada',
+        },
+        'ADMIN',
+      ),
+    ).resolves.toEqual({
+      id: 'reservation-1',
+      attendeesCount: 9,
+      justification: 'Reunião ampliada',
+    });
+    expect(repository.update).toHaveBeenCalledWith('reservation-1', {
+      attendeesCount: 9,
+      justification: 'Reunião ampliada',
+    });
+  });
+
+  it('explains when an admin must justify merging an existing reservation', async () => {
+    repository.findConfirmedByUserAndTime.mockResolvedValue({
+      id: 'reservation-1',
+      attendeesCount: 1,
+      justification: undefined,
+    });
+
+    await expect(
+      service.create(
+        'admin-1',
+        {
+          roomId: 'room-1',
+          date: '2099-01-01',
+          startTime: '10:00',
+          endTime: '11:00',
+          attendeesCount: 1,
+        },
+        'ADMIN',
+      ),
+    ).rejects.toThrow(
+      'Você já possui uma reserva no mesmo dia e horário. Justifique para reservar mais de 1 lugar.',
+    );
+    expect(repository.update).not.toHaveBeenCalled();
+    expect(repository.create).not.toHaveBeenCalled();
+  });
+
   it('allows a partial reservation when seats remain available', async () => {
     repository.findRoom.mockResolvedValue({ capacity: 10 });
     repository.sumOverlappingAttendees.mockResolvedValue(6);
@@ -143,7 +270,7 @@ describe('ReservationsService', () => {
         'ADMIN',
       ),
     ).rejects.toThrow(
-      'A sala não possui capacidade suficiente nesse intervalo',
+      'A reserva não pode exceder a capacidade de 10 participantes (4 vagas restantes)',
     );
     expect(repository.create).not.toHaveBeenCalled();
   });

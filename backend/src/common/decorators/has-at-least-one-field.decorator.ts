@@ -20,9 +20,7 @@ export function HasAtLeastOneField(
           const [allowedFields] = args.constraints as [string[]];
           const object = args.object as Record<string, unknown>;
 
-          return allowedFields.some(
-            (field) => object[field] !== undefined,
-          );
+          return allowedFields.some((field) => object[field] !== undefined);
         },
       },
     });

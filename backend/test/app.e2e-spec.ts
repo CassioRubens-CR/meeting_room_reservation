@@ -63,7 +63,7 @@ describe('Meeting room reservation API (e2e)', () => {
       }),
     );
     await app.init();
-    server = app.getHttpServer() as unknown as SupertestApp;
+    server = app.getHttpServer();
   });
 
   afterAll(async () => {

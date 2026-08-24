@@ -64,9 +64,9 @@ describe('UsersService', () => {
   it('updates the password hash', async () => {
     prisma.user.update.mockResolvedValue({ id: 'user-1' });
 
-    await expect(
-      service.updatePassword('user-1', 'new-hash'),
-    ).resolves.toEqual({ id: 'user-1' });
+    await expect(service.updatePassword('user-1', 'new-hash')).resolves.toEqual(
+      { id: 'user-1' },
+    );
     expect(prisma.user.update).toHaveBeenCalledWith({
       where: { id: 'user-1' },
       data: { passwordHash: 'new-hash' },

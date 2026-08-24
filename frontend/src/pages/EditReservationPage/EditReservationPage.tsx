@@ -259,7 +259,13 @@ export function EditReservationPage() {
                   min="1"
                   max={rooms.find((room) => room.id === roomId)?.capacity}
                   value={attendeesCount}
-                  onChange={(event) => setAttendeesCount(Number(event.target.value))}
+                  onChange={(event) => {
+                    const value = Number(event.target.value)
+                    const capacity = rooms.find((room) => room.id === roomId)?.capacity
+                    setAttendeesCount(
+                      Number.isNaN(value) ? 1 : Math.min(value, capacity ?? value),
+                    )
+                  }}
                   required
                   disabled={loading}
                   className="mt-1 min-h-11 w-full rounded-lg border border-stone-300 px-3 py-3 text-sm text-stone-900 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 disabled:bg-stone-50"

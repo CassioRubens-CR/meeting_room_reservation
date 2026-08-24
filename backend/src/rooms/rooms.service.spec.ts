@@ -76,9 +76,9 @@ describe('RoomsService', () => {
     prisma.room.findUnique.mockResolvedValue({ id: 'room-1' });
     prisma.room.update.mockRejectedValue({ code: 'P2002' });
 
-    await expect(
-      service.update('room-1', { name: 'Room B' }),
-    ).rejects.toThrow(ConflictException);
+    await expect(service.update('room-1', { name: 'Room B' })).rejects.toThrow(
+      ConflictException,
+    );
   });
 
   it('deletes a room without reservations', async () => {
@@ -89,7 +89,9 @@ describe('RoomsService', () => {
     prisma.room.delete.mockResolvedValue({ id: 'room-1' });
 
     await expect(service.remove('room-1')).resolves.toEqual({ id: 'room-1' });
-    expect(prisma.room.delete).toHaveBeenCalledWith({ where: { id: 'room-1' } });
+    expect(prisma.room.delete).toHaveBeenCalledWith({
+      where: { id: 'room-1' },
+    });
   });
 
   it('rejects deleting a room with reservations', async () => {

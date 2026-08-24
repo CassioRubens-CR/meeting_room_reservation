@@ -55,11 +55,61 @@ export class ReservationsService {
       );
     }
 
-    this.validateAttendeesCount(
-      attendeesCount,
-      room.capacity,
-      dto.justification,
-    );
+    this.validateJustification(attendeesCount, dto.justification);
+
+    const overlappingReservation =
+      await this.repository.findConfirmedOverlappingByUser(
+        userId,
+        dto.roomId,
+        start,
+        end,
+      );
+
+    if (overlappingReservation && role !== 'ADMIN') {
+      throw new ConflictException(
+        'Você já possui uma reserva para esta sala neste horário',
+      );
+    }
+
+    const existingReservation =
+      role === 'ADMIN'
+        ? await this.repository.findConfirmedByUserAndTime(
+            userId,
+            dto.roomId,
+            start,
+            end,
+          )
+        : undefined;
+
+    if (existingReservation && role === 'ADMIN') {
+      const totalAttendees =
+        existingReservation.attendeesCount + attendeesCount;
+      const justification = dto.justification?.trim();
+
+      if (totalAttendees > 1 && !justification) {
+        throw new BadRequestException(
+          'Você já possui uma reserva no mesmo dia e horário. Justifique para reservar mais de 1 lugar.',
+        );
+      }
+
+      const occupiedSeats = await this.repository.sumOverlappingAttendees(
+        dto.roomId,
+        start,
+        end,
+        existingReservation.id,
+      );
+
+      this.validateCapacity(
+        attendeesCount,
+        room.capacity - occupiedSeats,
+        room,
+      );
+
+      return this.repository.update(existingReservation.id, {
+        attendeesCount: totalAttendees,
+        justification,
+      });
+    }
 
     const occupiedSeats = await this.repository.sumOverlappingAttendees(
       dto.roomId,
@@ -68,8 +118,10 @@ export class ReservationsService {
     );
 
     if (occupiedSeats + attendeesCount > room.capacity) {
-      throw new ConflictException(
-        `A sala não possui capacidade suficiente nesse intervalo (${occupiedSeats} de ${room.capacity} lugares ocupados)`,
+      this.validateCapacity(
+        attendeesCount,
+        room.capacity - occupiedSeats,
+        room,
       );
     }
 
@@ -126,9 +178,8 @@ export class ReservationsService {
 
     const attendeesCount =
       dto.attendeesCount ?? reservation.attendeesCount ?? 1;
-    this.validateAttendeesCount(
+    this.validateJustification(
       attendeesCount,
-      room.capacity,
       dto.justification ?? reservation.justification ?? undefined,
     );
 
@@ -139,11 +190,7 @@ export class ReservationsService {
       id,
     );
 
-    if (occupiedSeats + attendeesCount > room.capacity) {
-      throw new ConflictException(
-        `A sala não possui capacidade suficiente nesse intervalo (${occupiedSeats} de ${room.capacity} lugares ocupados)`,
-      );
-    }
+    this.validateCapacity(attendeesCount, room.capacity - occupiedSeats, room);
 
     return this.repository.update(id, {
       roomId: dto.roomId,
@@ -197,20 +244,25 @@ export class ReservationsService {
     }
   }
 
-  private validateAttendeesCount(
+  private validateJustification(
     attendeesCount: number,
-    capacity: number,
     justification?: string,
   ): void {
-    if (attendeesCount > capacity) {
-      throw new BadRequestException(
-        `A reserva não pode exceder a capacidade de ${capacity} participantes`,
-      );
-    }
-
     if (attendeesCount > 1 && !justification?.trim()) {
       throw new BadRequestException(
         'Informe uma justificativa para reservar mais de 1 lugar',
+      );
+    }
+  }
+
+  private validateCapacity(
+    attendeesCount: number,
+    availableSeats: number,
+    room: { capacity: number },
+  ): void {
+    if (attendeesCount > availableSeats) {
+      throw new ConflictException(
+        `A reserva não pode exceder a capacidade de ${room.capacity} participantes (${availableSeats} vagas restantes)`,
       );
     }
   }

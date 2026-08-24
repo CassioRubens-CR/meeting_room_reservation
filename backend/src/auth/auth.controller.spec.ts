@@ -12,9 +12,7 @@ describe('AuthController', () => {
     login: jest.fn<() => Promise<unknown>>(),
     changePassword: jest.fn<() => Promise<unknown>>(),
   };
-  const controller = new AuthController(
-    authService as unknown as AuthService,
-  );
+  const controller = new AuthController(authService as unknown as AuthService);
 
   it('delegates registration to the service', () => {
     const dto: RegisterDto = {

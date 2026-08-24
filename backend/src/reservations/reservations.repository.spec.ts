@@ -10,6 +10,7 @@ describe('ReservationsRepository', () => {
     reservation: {
       aggregate: jest.fn<() => Promise<unknown>>(),
       findUnique: jest.fn<() => Promise<unknown>>(),
+      findFirst: jest.fn<() => Promise<unknown>>(),
       update: jest.fn<() => Promise<unknown>>(),
       create: jest.fn<() => Promise<unknown>>(),
       findMany: jest.fn<() => Promise<unknown>>(),
@@ -81,6 +82,45 @@ describe('ReservationsRepository', () => {
 
     expect(prisma.reservation.findUnique).toHaveBeenCalledWith({
       where: { id: 'reservation-1' },
+    });
+  });
+
+  it('finds a confirmed overlapping reservation for a user', () => {
+    const start = new Date('2099-01-01T10:00:00.000Z');
+    const end = new Date('2099-01-01T11:00:00.000Z');
+
+    void repository.findConfirmedOverlappingByUser(
+      'user-1',
+      'room-1',
+      start,
+      end,
+    );
+
+    expect(prisma.reservation.findFirst).toHaveBeenCalledWith({
+      where: {
+        userId: 'user-1',
+        roomId: 'room-1',
+        status: 'CONFIRMED',
+        startTime: { lt: end },
+        endTime: { gt: start },
+      },
+    });
+  });
+
+  it('finds a confirmed reservation with the same time window', () => {
+    const start = new Date('2099-01-01T10:00:00.000Z');
+    const end = new Date('2099-01-01T11:00:00.000Z');
+
+    void repository.findConfirmedByUserAndTime('user-1', 'room-1', start, end);
+
+    expect(prisma.reservation.findFirst).toHaveBeenCalledWith({
+      where: {
+        userId: 'user-1',
+        roomId: 'room-1',
+        status: 'CONFIRMED',
+        startTime: { equals: start },
+        endTime: { equals: end },
+      },
     });
   });
 
