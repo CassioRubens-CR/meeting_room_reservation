@@ -204,7 +204,7 @@ export function AdminReservationsPage() {
                 return (
                   <article
                     key={reservation.id}
-                    className={`rounded-xl border bg-white p-4 shadow-sm sm:p-5 ${
+                    className={`min-w-0 max-w-full rounded-xl border bg-white p-4 shadow-sm sm:p-5 ${
                       isCancelled ? 'border-stone-200 opacity-75' : 'border-brand-200'
                     }`}
                   >
@@ -225,25 +225,25 @@ export function AdminReservationsPage() {
                       </span>
                     </div>
 
-                    <div className="mt-5 grid gap-3 border-y border-stone-100 py-4 text-sm sm:grid-cols-2">
-                      <div>
+                    <div className="mt-5 grid min-w-0 gap-3 border-y border-stone-100 py-4 text-sm sm:grid-cols-2">
+                      <div className="min-w-0">
                         <p className="text-xs text-stone-500">Responsável</p>
                         <p className="mt-1 truncate font-medium text-stone-800">
                           {reservation.user.name}
                         </p>
                         <p className="truncate text-xs text-stone-500">{reservation.user.email}</p>
                       </div>
-                      <div>
+                      <div className="min-w-0">
                         <p className="text-xs text-stone-500">Data</p>
                         <p className="mt-1 font-medium text-stone-800">{formatDate(reservation.date)}</p>
                       </div>
-                      <div>
+                      <div className="min-w-0">
                         <p className="text-xs text-stone-500">Horário</p>
                         <p className="mt-1 font-medium text-stone-800">
                           {formatTime(reservation.startTime)} às {formatTime(reservation.endTime)}
                         </p>
                       </div>
-                      <div>
+                      <div className="min-w-0">
                         <p className="text-xs text-stone-500">Participantes</p>
                         <p className="mt-1 font-medium text-stone-800">
                           {reservation.attendeesCount}

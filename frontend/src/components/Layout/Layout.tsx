@@ -41,7 +41,7 @@ export function Layout({ children }: LayoutProps) {
     }`
 
   return (
-    <div className="flex min-h-screen flex-col bg-stone-50">
+    <div className="app-shell flex flex-col bg-stone-50">
       <header className="border-b border-stone-200 bg-brand-50 shadow-sm">
         <div className="mx-auto max-w-7xl bg-brand-50 px-4 py-3 sm:px-6 sm:py-4">
           <div className="hidden text-center sm:block">
@@ -70,7 +70,7 @@ export function Layout({ children }: LayoutProps) {
             <Link
               to="/dashboard"
               aria-label="Ir para o dashboard"
-              className="absolute inset-x-14 truncate whitespace-nowrap text-center text-[10px] font-semibold uppercase tracking-wider text-brand-700 min-[360px]:text-xs sm:hidden"
+              className="absolute inset-x-14 truncate whitespace-nowrap text-center text-[10px] font-semibold uppercase tracking-wider text-brand-700 sm:hidden"
             >
               Meeting Room Reservation
             </Link>
