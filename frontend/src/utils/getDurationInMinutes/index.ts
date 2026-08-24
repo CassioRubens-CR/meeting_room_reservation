@@ -1,0 +1,1 @@
+export { getDurationInMinutes } from './getDurationInMinutes'

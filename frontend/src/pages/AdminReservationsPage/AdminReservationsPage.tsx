@@ -2,28 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Layout } from '../../components'
 import { useAuthStore, useReservationsStore, useRoomsStore } from '../../store'
-import type { AdminReservation } from '../../types/models'
-
-function formatDate(value: string) {
-  return new Intl.DateTimeFormat('pt-BR', {
-    dateStyle: 'long',
-  }).format(new Date(value))
-}
-
-function formatTime(value: string) {
-  if (!value.includes('T')) {
-    return value
-  }
-
-  const date = new Date(value)
-  return `${String(date.getHours()).padStart(2, '0')}:${String(
-    date.getMinutes(),
-  ).padStart(2, '0')}`
-}
-
-function getStatusLabel(reservation: AdminReservation) {
-  return reservation.status === 'CANCELLED' ? 'Cancelada' : 'Confirmada'
-}
+import { formatDate, formatTime, getReservationStatus } from '../../utils'
 
 export function AdminReservationsPage() {
   const navigate = useNavigate()
@@ -221,7 +200,7 @@ export function AdminReservationsPage() {
                           ? 'bg-stone-100 text-stone-600'
                           : 'bg-accent-100 text-accent-900'
                         }`}>
-                        {getStatusLabel(reservation)}
+                        {getReservationStatus(reservation.status)}
                       </span>
                     </div>
 

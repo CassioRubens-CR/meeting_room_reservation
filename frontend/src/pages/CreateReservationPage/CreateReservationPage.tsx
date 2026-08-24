@@ -2,19 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Layout } from '../../components'
 import { useAuthStore, useReservationsStore, useRoomsStore } from '../../store'
-
-function getToday() {
-  const today = new Date()
-  const offset = today.getTimezoneOffset() * 60000
-  return new Date(today.getTime() - offset).toISOString().slice(0, 10)
-}
-
-function getDurationInMinutes(startTime: string, endTime: string) {
-  const [startHour, startMinute] = startTime.split(':').map(Number)
-  const [endHour, endMinute] = endTime.split(':').map(Number)
-
-  return endHour * 60 + endMinute - (startHour * 60 + startMinute)
-}
+import { getDurationInMinutes, getToday } from '../../utils'
 
 export function CreateReservationPage() {
   const navigate = useNavigate()

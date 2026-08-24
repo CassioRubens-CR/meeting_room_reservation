@@ -15,7 +15,6 @@ export function RegisterPage() {
     clearError()
 
     if (password !== confirmPassword) {
-      // Could set local error here, but keeping it simple for now
       return
     }
 

@@ -3,27 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { ConfirmModal, Layout } from '../../components'
 import { useAuthStore, useReservationsStore, useRoomsStore } from '../../store'
 import type { Reservation } from '../../types/models'
-
-function formatDate(value: string) {
-  return new Intl.DateTimeFormat('pt-BR', {
-    dateStyle: 'long',
-  }).format(new Date(value))
-}
-
-function formatTime(value: string) {
-  if (!value.includes('T')) {
-    return value
-  }
-
-  const date = new Date(value)
-  return `${String(date.getHours()).padStart(2, '0')}:${String(
-    date.getMinutes(),
-  ).padStart(2, '0')}`
-}
-
-function getReservationStatus(reservation: Reservation) {
-  return reservation.status === 'CANCELLED' ? 'Cancelada' : 'Confirmada'
-}
+import { formatDate, formatTime, getReservationStatus } from '../../utils'
 
 export function MyReservationsPage() {
   const navigate = useNavigate()
@@ -166,7 +146,7 @@ export function MyReservationsPage() {
                           : 'bg-accent-100 text-accent-900'
                       }`}
                     >
-                      {getReservationStatus(reservation)}
+                      {getReservationStatus(reservation.status)}
                     </span>
                   </div>
 
