@@ -430,6 +430,33 @@ describe('AdminRoomsPage', () => {
     })
   })
 
+  it('shows deletion errors only in the open confirmation modal', async () => {
+    useAuthStore.setState({ user: adminUser })
+    useRoomsStore.setState({ rooms: [mockRoom] })
+    vi.spyOn(api, 'deleteRoom').mockRejectedValue(
+      new Error('Não é possível excluir uma sala com reservas vinculadas'),
+    )
+
+    render(
+      <MemoryRouter>
+        <AdminRoomsPage />
+      </MemoryRouter>,
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Excluir sala' }))
+    const dialog = await screen.findByRole('dialog')
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Excluir sala' }))
+
+    await waitFor(() => {
+      expect(
+        within(dialog).getByText('Não é possível excluir uma sala com reservas vinculadas'),
+      ).toBeInTheDocument()
+    })
+    expect(
+      screen.getAllByText('Não é possível excluir uma sala com reservas vinculadas'),
+    ).toHaveLength(1)
+  })
+
   it('allows editing flow cancel and closes delete modal without confirming', async () => {
     useAuthStore.setState({ user: adminUser })
     useRoomsStore.setState({ rooms: [mockRoom] })

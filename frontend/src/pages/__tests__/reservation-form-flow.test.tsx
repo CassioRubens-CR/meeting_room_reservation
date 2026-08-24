@@ -83,6 +83,7 @@ describe('reservation form flows', () => {
         <Routes>
           <Route path="/rooms/:roomId/reserve" element={<CreateReservationPage />} />
           <Route path="/rooms" element={<div>Lista de salas</div>} />
+          <Route path="/reservations" element={<div>Minhas reservas</div>} />
         </Routes>
       </MemoryRouter>,
     )
@@ -119,6 +120,7 @@ describe('reservation form flows', () => {
         'token-abc',
       )
     })
+    expect(screen.getByText('Minhas reservas')).toBeInTheDocument()
   })
 
   it('renders create loading and not-found states', async () => {
@@ -140,6 +142,7 @@ describe('reservation form flows', () => {
         <Routes>
           <Route path="/rooms/:roomId/reserve" element={<CreateReservationPage />} />
           <Route path="/rooms" element={<div>Lista de salas</div>} />
+          <Route path="/reservations" element={<div>Minhas reservas</div>} />
         </Routes>
       </MemoryRouter>,
     )
@@ -157,6 +160,7 @@ describe('reservation form flows', () => {
         <Routes>
           <Route path="/rooms/:roomId/reserve" element={<CreateReservationPage />} />
           <Route path="/rooms" element={<div>Lista de salas</div>} />
+          <Route path="/reservations" element={<div>Minhas reservas</div>} />
         </Routes>
       </MemoryRouter>,
     )
@@ -192,6 +196,7 @@ describe('reservation form flows', () => {
         <Routes>
           <Route path="/rooms/:roomId/reserve" element={<CreateReservationPage />} />
           <Route path="/rooms" element={<div>Lista de salas</div>} />
+          <Route path="/reservations" element={<div>Minhas reservas</div>} />
         </Routes>
       </MemoryRouter>,
     )
@@ -227,6 +232,7 @@ describe('reservation form flows', () => {
         'token-admin',
       )
     })
+    expect(screen.getByText('Minhas reservas')).toBeInTheDocument()
   })
 
   it('does not submit create flow without token', async () => {

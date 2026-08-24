@@ -76,7 +76,7 @@ export function CreateReservationPage() {
         },
         token,
       )
-      navigate('/rooms')
+      navigate('/reservations')
     } catch {
       // API error is exposed by the reservations store.
     }
@@ -220,7 +220,7 @@ export function CreateReservationPage() {
                   required
                   disabled={reservationLoading}
                   rows={3}
-                  placeholder="Informe a finalidade da ocupação das vagas."
+                  placeholder="Para reservas com mais de 1 participante, informe a finalidade."
                   className="mt-1 w-full resize-y rounded-lg border border-stone-300 px-3 py-3 text-sm text-stone-900 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 disabled:bg-stone-50"
                 />
               </div>

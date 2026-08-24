@@ -166,7 +166,7 @@ export function AdminRoomsPage() {
 
           <section className="rounded-xl border border-brand-200 bg-white p-4 shadow-sm sm:p-6">
             <form onSubmit={editingRoom ? handleUpdate : handleSubmit} className="space-y-5">
-              {error && (
+              {error && !roomToDelete && (
                 <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
                   {error}
                 </div>
