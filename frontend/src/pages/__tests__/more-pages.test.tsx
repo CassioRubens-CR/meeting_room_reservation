@@ -457,6 +457,37 @@ describe('AdminRoomsPage', () => {
     ).toHaveLength(1)
   })
 
+  it('clears the edit form after deleting the edited room', async () => {
+    useAuthStore.setState({ user: adminUser })
+    useRoomsStore.setState({ rooms: [mockRoom] })
+    const deleteRoomSpy = vi.spyOn(api, 'deleteRoom').mockResolvedValue(mockRoom)
+
+    render(
+      <MemoryRouter>
+        <AdminRoomsPage />
+      </MemoryRouter>,
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Editar sala' }))
+    expect(screen.getByDisplayValue('Sala Azul')).toBeInTheDocument()
+    expect(screen.getByDisplayValue('8')).toBeInTheDocument()
+    expect(screen.getByDisplayValue('Andar 1')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Excluir sala' }))
+    const dialog = await screen.findByRole('dialog')
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Excluir sala' }))
+
+    await waitFor(() => {
+      expect(deleteRoomSpy).toHaveBeenCalledWith('room-1', 'token-abc')
+      expect(screen.getByRole('heading', { name: 'Cadastrar sala' })).toBeInTheDocument()
+    })
+
+    expect(screen.getByLabelText('Nome da sala')).toHaveValue('')
+    expect(screen.getByLabelText('Capacidade')).toHaveValue(null)
+    expect(screen.getByLabelText('Localização (opcional)')).toHaveValue('')
+    expect(screen.getByText('Sala excluída com sucesso.')).toBeInTheDocument()
+  })
+
   it('allows editing flow cancel and closes delete modal without confirming', async () => {
     useAuthStore.setState({ user: adminUser })
     useRoomsStore.setState({ rooms: [mockRoom] })

@@ -46,6 +46,7 @@ export function AdminRoomsPage() {
     try {
       await deleteRoom(roomToDelete.id, token)
       setRoomToDelete(null)
+      handleCancelEdit()
       setSuccessMessage('Sala excluída com sucesso.')
     } catch {
       // Error is exposed by the rooms store.
