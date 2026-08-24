@@ -176,14 +176,14 @@ export function AdminReservationsPage() {
           )}
 
           {!loading && adminReservations.length > 0 && (
-            <div className="grid gap-4 lg:grid-cols-2">
+            <div className="grid items-stretch gap-4 lg:grid-cols-2">
               {adminReservations.map((reservation) => {
                 const isCancelled = reservation.status === 'CANCELLED'
 
                 return (
                   <article
                     key={reservation.id}
-                    className={`min-w-0 max-w-full rounded-xl border bg-white p-4 shadow-sm sm:p-5 ${
+                    className={`flex h-full min-w-0 max-w-full flex-col rounded-xl border bg-white p-4 shadow-sm sm:p-5 ${
                       isCancelled ? 'border-stone-200 opacity-75' : 'border-brand-200'
                     }`}
                   >

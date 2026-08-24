@@ -118,7 +118,7 @@ export function MyReservationsPage() {
         )}
 
         {!loading && reservations.length > 0 && (
-          <div className="grid gap-4 lg:grid-cols-2">
+          <div className="grid items-stretch gap-4 lg:grid-cols-2">
             {reservations.map((reservation) => {
               const room = rooms.find((availableRoom) => availableRoom.id === reservation.roomId)
               const isCancelled = reservation.status === 'CANCELLED'
@@ -126,12 +126,12 @@ export function MyReservationsPage() {
               return (
                 <article
                   key={reservation.id}
-                  className={`rounded-xl border bg-white p-4 shadow-sm sm:p-5 ${
+                  className={`flex h-full min-w-0 flex-col rounded-xl border bg-white p-4 shadow-sm sm:p-5 ${
                     isCancelled ? 'border-stone-200 opacity-75' : 'border-brand-200'
                   }`}
                 >
                   <div className="flex items-start justify-between gap-3">
-                    <div>
+                    <div className="min-w-0">
                       <h2 className="text-lg font-semibold text-stone-900">
                         {room?.name || 'Sala não encontrada'}
                       </h2>
@@ -177,7 +177,7 @@ export function MyReservationsPage() {
                   )}
 
                   {!isCancelled && (
-                    <div className="grid gap-2 sm:grid-cols-2">
+                    <div className="mt-auto grid gap-2 sm:grid-cols-2">
                       <button
                         type="button"
                         onClick={() => navigate(`/reservations/${reservation.id}/edit`)}
