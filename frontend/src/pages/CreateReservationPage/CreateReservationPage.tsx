@@ -59,6 +59,11 @@ export function CreateReservationPage() {
       return
     }
 
+    if (startTime >= endTime) {
+      setValidationError('Horário de término deve ser após o início')
+      return
+    }
+
     if (getDurationInMinutes(startTime, endTime) < 60) {
       setValidationError('A reserva deve ter duração mínima de 1 hora.')
       return

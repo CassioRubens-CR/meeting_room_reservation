@@ -170,6 +170,33 @@ describe('reservation form flows', () => {
     expect(screen.getByText('Lista de salas')).toBeInTheDocument()
   })
 
+  it('shows an exact error when create end time is before start time', async () => {
+    useAuthStore.setState({
+      token: 'token-abc',
+      user: { id: 'user-1', name: 'Usuário Teste', email: 'teste@email.com', role: 'USER' },
+      isAuthenticated: true,
+      hydrated: true,
+    })
+    useRoomsStore.setState({ rooms: [room], loading: false, error: null })
+    const createSpy = vi.spyOn(api, 'createReservation')
+
+    render(
+      <MemoryRouter initialEntries={['/rooms/room-1/reserve']}>
+        <Routes>
+          <Route path="/rooms/:roomId/reserve" element={<CreateReservationPage />} />
+        </Routes>
+      </MemoryRouter>,
+    )
+
+    fireEvent.change(screen.getByLabelText(/data/i), { target: { value: '2026-08-24' } })
+    fireEvent.change(screen.getByLabelText(/início/i), { target: { value: '13:00' } })
+    fireEvent.change(screen.getByLabelText(/término/i), { target: { value: '10:00' } })
+    fireEvent.click(screen.getByRole('button', { name: /confirmar reserva/i }))
+
+    expect(screen.getByText('Horário de término deve ser após o início')).toBeInTheDocument()
+    expect(createSpy).not.toHaveBeenCalled()
+  })
+
   it('shows admin fields and sends trimmed justification in create flow', async () => {
     const createSpy = vi.spyOn(api, 'createReservation').mockResolvedValue({
       ...existingReservation,
@@ -454,6 +481,40 @@ describe('reservation form flows', () => {
     expect(await screen.findByText('Reserva não encontrada')).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Ver reservas' }))
     expect(screen.getByText('Minhas reservas')).toBeInTheDocument()
+  })
+
+  it('shows an exact error when edit end time is before start time', async () => {
+    const updateSpy = vi.spyOn(api, 'updateReservation')
+
+    useAuthStore.setState({
+      token: 'token-xyz',
+      user: { id: 'user-1', name: 'Usuário Teste', email: 'teste@email.com', role: 'USER' },
+      isAuthenticated: true,
+      hydrated: true,
+    })
+    useRoomsStore.setState({ rooms: [room], loading: false, error: null })
+    useReservationsStore.setState({
+      reservations: [existingReservation],
+      adminReservations: [],
+      loading: false,
+      error: null,
+    })
+
+    render(
+      <MemoryRouter initialEntries={['/reservations/reservation-1/edit']}>
+        <Routes>
+          <Route path="/reservations/:reservationId/edit" element={<EditReservationPage />} />
+        </Routes>
+      </MemoryRouter>,
+    )
+
+    fireEvent.change(screen.getByLabelText(/data/i), { target: { value: '2026-08-24' } })
+    fireEvent.change(screen.getByLabelText(/início/i), { target: { value: '13:00' } })
+    fireEvent.change(screen.getByLabelText(/término/i), { target: { value: '10:00' } })
+    fireEvent.click(screen.getByRole('button', { name: /salvar alterações/i }))
+
+    expect(screen.getByText('Horário de término deve ser após o início')).toBeInTheDocument()
+    expect(updateSpy).not.toHaveBeenCalled()
   })
 
   it('fetches data when edit page mounts with token and empty stores', async () => {
