@@ -15,6 +15,21 @@ Sistema web para gerenciamento e reserva de salas de reunião. Usuários podem c
 - Menu responsivo para desktop e mobile.
 - Confirmação visual para exclusão de salas e cancelamento de reservas.
 
+## Aplicação publicada
+
+A aplicação completa está disponível para teste no Render:
+
+**[Acessar o Meeting Room Reservation](https://meeting-room-frontend-1hc3.onrender.com)**
+
+Serviços publicados:
+
+- Frontend: [https://meeting-room-frontend-1hc3.onrender.com](https://meeting-room-frontend-1hc3.onrender.com)
+- Backend/API: [https://meeting-room-backend-zi7k.onrender.com](https://meeting-room-backend-zi7k.onrender.com)
+
+O projeto está hospedado em um plano gratuito de teste. Por isso, a primeira abertura pode demorar alguns segundos enquanto o serviço é reativado. Também podem ocorrer instabilidades temporárias, reinicializações, indisponibilidade eventual ou perda de dados do ambiente publicado.
+
+Para uma utilização real, seria necessário usar uma hospedagem com recursos de produção, banco de dados persistente, monitoramento, backups e configurações de segurança adequadas.
+
 ## Tecnologias
 
 ### Backend
@@ -175,10 +190,14 @@ O ADMIN possui todos os fluxos do usuário comum e também pode:
 - Horários devem usar o formato `HH:mm`.
 - Usuários comuns reservam um lugar por vez.
 - ADMIN pode informar mais de um participante.
-- A quantidade não pode exceder a capacidade da sala.
+- A quantidade informada não pode exceder a capacidade total da sala.
 - Reservas sobrepostas são avaliadas pela ocupação total da sala.
 - Uma reserva que ocupa todos os lugares impede outra reserva no mesmo intervalo.
 - Reservas canceladas não ocupam capacidade.
+- Usuários comuns não podem criar reservas sobrepostas na mesma sala e horário.
+- ADMIN pode consolidar uma nova solicitação no mesmo dia, sala e horário exato de uma reserva própria.
+- Na consolidação, os participantes são somados e uma nova justificativa é obrigatória.
+- Se a capacidade restante não for suficiente, a API informa a quantidade de vagas disponíveis.
 
 ## Banco de dados
 
@@ -220,6 +239,33 @@ cd frontend
 npm run lint
 npm run build
 ```
+
+## Deploy no Render
+
+O frontend está publicado como um Static Site e o backend como um Web Service no Render. Os dois serviços trabalham juntos para disponibilizar a aplicação completa.
+
+Configuração típica:
+
+```text
+Root Directory: frontend
+Build Command: npm install && npm run build
+Publish Directory: dist
+```
+
+Antes do build, configure a variável:
+
+```env
+VITE_API_URL=https://meeting-room-backend-zi7k.onrender.com
+```
+
+O backend deve permitir a origem do frontend em `FRONTEND_URL`. Os serviços publicados atualmente são:
+
+```text
+https://meeting-room-frontend-1hc3.onrender.com
+https://meeting-room-backend-zi7k.onrender.com
+```
+
+Como o ambiente é gratuito e destinado a testes, o serviço pode entrar em modo de suspensão, apresentar cold start, responder mais lentamente ou ficar temporariamente indisponível. Isso não representa necessariamente um erro na aplicação.
 
 ## Cobertura de testes
 

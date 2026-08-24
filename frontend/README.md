@@ -36,7 +36,8 @@ O frontend oferece:
 - Criação, edição e cancelamento de reservas.
 - Quantidade de participantes em reservas administrativas.
 - Justificativa para reservas ADMIN com mais de um participante.
-- Validação de capacidade da sala feita pelo backend.
+- Limite do campo de participantes pela capacidade total da sala.
+- Validação de capacidade, conflitos e duplicidade feita pelo backend.
 - CRUD administrativo de salas.
 - Perfil com alteração de senha.
 - Menu do usuário com avatar, perfil e logout.
@@ -45,6 +46,11 @@ O frontend oferece:
 - Estados de carregamento, vazio, erro e sucesso.
 
 O backend permanece a fonte de verdade para autenticação, autorização, capacidade, conflitos de horário e persistência.
+
+A aplicação está completa e publicada no Render:
+
+- Frontend: **[https://meeting-room-frontend-1hc3.onrender.com](https://meeting-room-frontend-1hc3.onrender.com)**
+- Backend/API: **[https://meeting-room-backend-zi7k.onrender.com](https://meeting-room-backend-zi7k.onrender.com)**
 
 ---
 
@@ -78,37 +84,26 @@ O backend permanece a fonte de verdade para autenticação, autorização, capac
 frontend/
 ├── public/
 ├── src/
-│   ├── api/                       # Cliente HTTP e módulos de API
-│   │   ├── auth.ts                # Register, login e troca de senha
-│   │   ├── http.ts                # fetch, token e ApiError
-│   │   ├── reservations.ts        # CRUD de reservas
-│   │   └── rooms.ts               # CRUD de salas
+│   ├── api/                       # Cliente HTTP organizado por recurso
+│   │   ├── auth/
+│   │   ├── http/
+│   │   ├── reservations/
+│   │   └── rooms/
 │   │
-│   ├── components/                # Componentes compartilhados
-│   │   ├── ConfirmModal.tsx       # Confirmação de ações destrutivas
-│   │   ├── Layout.tsx             # Cabeçalho, menus e conteúdo
-│   │   └── ProtectedRoute.tsx     # Proteção de rotas autenticadas
+│   ├── components/                # Componentes compartilhados, cada um em sua pasta
 │   │
-│   ├── hooks/                     # Hooks de comportamento reutilizável
-│   │   ├── useClickOutside.ts     # Clique/toque fora de elementos
-│   │   ├── useEscapeKey.ts        # Fechamento com Escape
-│   │   └── index.ts               # Barrel export
+│   ├── hooks/                     # Hooks reutilizáveis, cada um em sua pasta
 │   │
-│   ├── pages/                     # Telas e fluxos da aplicação
-│   │   ├── AdminRoomsPage.tsx
-│   │   ├── CreateReservationPage.tsx
-│   │   ├── EditReservationPage.tsx
-│   │   ├── HomePage.tsx
-│   │   ├── LoginPage.tsx
-│   │   ├── MyReservationsPage.tsx
-│   │   ├── ProfilePage.tsx
-│   │   ├── RegisterPage.tsx
-│   │   └── RoomsPage.tsx
-│   │
-│   ├── store/                     # Estado global Zustand
-│   │   ├── auth.store.ts
-│   │   ├── reservations.store.ts
-│   │   └── rooms.store.ts
+│   ├── pages/                     # Telas e fluxos, cada um em sua pasta
+│   ├── routes/                    # Metadados de rotas organizados por rota
+│   ├── store/                     # Stores organizadas por domínio
+│   ├── utils/                     # Funções puras reutilizáveis e testadas
+│   │   ├── formatDate.ts
+│   │   ├── formatTime.ts
+│   │   ├── getDurationInMinutes.ts
+│   │   ├── getReservationStatus.ts
+│   │   ├── getToday.ts
+│   │   └── index.ts
 │   │
 │   ├── types/                     # Contratos TypeScript
 │   │   └── models.ts
@@ -129,6 +124,8 @@ frontend/
 - Componentes compartilhados ficam em `components/`.
 - Comportamentos reutilizáveis ficam em `hooks/`.
 - Funções puras de formatação devem permanecer próximas do domínio ou ser movidas para `utils/`, não para hooks.
+- Funções puras reutilizáveis ficam em `utils/`, com testes unitários co-localizados.
+- A definição das rotas fica em `routes/`, mantendo o `App.tsx` responsável apenas pela composição.
 
 ---
 
@@ -233,6 +230,7 @@ npm run test:cov   # Suíte de testes com cobertura (mínimo de 80%)
 | `/reservations/:reservationId/edit` | Editar reserva | JWT |
 | `/profile` | Perfil e troca de senha | JWT |
 | `/admin/rooms` | Administração de salas | JWT + ADMIN no backend |
+| `/admin/reservations` | Todas as reservas e filtros | JWT + ADMIN no backend |
 
 `ProtectedRoute` aguarda a hidratação do estado salvo antes de redirecionar usuários não autenticados para `/login`.
 
@@ -262,7 +260,9 @@ npm run test:cov   # Suíte de testes com cobertura (mínimo de 80%)
 3. Informa data e horário.
 4. ADMIN pode informar participantes e justificativa.
 5. A API valida janela, capacidade e conflitos.
-6. Após sucesso, o frontend retorna para `/rooms`.
+6. Após sucesso, o frontend retorna para `/reservations`.
+
+Usuários comuns não podem criar uma reserva sobreposta na mesma sala e horário. ADMIN pode consolidar uma nova solicitação no mesmo dia, sala e horário exato de uma reserva própria: os participantes são somados e uma nova justificativa é exigida. A capacidade total continua sendo validada pelo backend.
 
 ### Minhas reservas
 
@@ -348,9 +348,9 @@ O cliente em [api/http.ts](src/api/http.ts) centraliza:
 Módulos:
 
 ```text
-api/auth.ts          -> /auth/register, /auth/login, /auth/change-password
-api/rooms.ts         -> /rooms
-api/reservations.ts  -> /reservations
+api/auth/            -> /auth/register, /auth/login, /auth/change-password
+api/rooms/           -> /rooms
+api/reservations/    -> /reservations
 ```
 
 Os tipos em `types/models.ts` refletem os contratos principais do backend:
@@ -404,6 +404,8 @@ O frontend segue abordagem mobile-first com Tailwind CSS:
 - Breakpoints `sm:` e `lg:` ampliam o layout.
 - Campos e botões usam altura mínima próxima de 44px.
 - Formulários usam `overflow-y-auto` e `100dvh` quando necessário.
+- Fallbacks de viewport (`100vh`, `-webkit-fill-available` e `100dvh`) protegem telas de autenticação no Safari/iOS.
+- As áreas seguras do iPhone são respeitadas com `safe-area-inset`.
 - Grades mudam de uma coluna para duas ou três colunas conforme a largura.
 - Menu desktop é ocultado em telas menores.
 - Menu sanduíche é exibido apenas no mobile.
@@ -430,6 +432,7 @@ Comportamentos previstos:
 - Erro de autenticação aparece no formulário.
 - Erro de capacidade aparece no formulário de reserva.
 - Erro de exclusão aparece dentro do modal.
+- Erros de exclusão aparecem somente no modal aberto, não no formulário.
 - Erro de cancelamento aparece dentro do modal.
 - Erro anterior é limpo ao abrir ou fechar um modal.
 - Loading desabilita controles durante requisições.
@@ -452,11 +455,12 @@ A configuração de cobertura fica em `vite.config.ts` (`test.coverage`) e exige
 
 O que a suíte cobre hoje:
 
-- **Camada de API** (`api/*.test.ts`): cada função de `auth.ts`, `rooms.ts` e `reservations.ts` é testada contra um `fetch` mockado, além dos casos de erro e resposta sem corpo em `http.ts`.
-- **Stores** (`store/stores.test.ts`): fluxo feliz e de erro de cada ação de `useAuthStore`, `useRoomsStore` e `useReservationsStore`, incluindo hidratação da sessão e mensagens de fallback quando o erro não é uma instância de `Error`.
-- **Hooks** (`hooks/hooks.test.tsx`): `useClickOutside` e `useEscapeKey` isolados em componentes de teste dedicados.
-- **Componentes** (`components/*.test.tsx`): `ConfirmModal` (abertura, confirmação, loading, fechamento por clique fora e por `Escape`), `Layout` (navegação desktop/mobile, menu do usuário, logout) e `ProtectedRoute` (hidratação e redirecionamento).
-- **Páginas** (`pages/*.test.tsx`): login, cadastro, listagem de salas, criação/edição de reserva com validação de duração mínima, fluxo administrativo de salas e reservas (com filtros), perfil e página inicial — cada uma com estados de carregamento, vazio e erro.
+- **Camada de API** (`api/*/*.test.ts`): cada módulo de autenticação, salas e reservas é testado contra um `fetch` mockado, além dos casos de erro e resposta sem corpo em `http`.
+- **Stores** (`store/*/*.test.ts` e `store/__tests__/stores.test.ts`): fluxo feliz e de erro de cada ação de `useAuthStore`, `useRoomsStore` e `useReservationsStore`, incluindo hidratação da sessão e mensagens de fallback.
+- **Hooks** (`hooks/*/*.test.ts`): `useClickOutside` e `useEscapeKey` isolados em componentes de teste dedicados.
+- **Componentes** (`components/*/*.test.tsx`): `ConfirmModal` (abertura, confirmação, loading, fechamento por clique fora e por `Escape`), `Layout` (navegação desktop/mobile, menu do usuário, logout) e `ProtectedRoute`.
+- **Páginas** (`pages/*/*.test.tsx` e `pages/__tests__/*.tsx`): login, cadastro, salas, criação/edição de reserva, fluxo administrativo, perfil e página inicial, com estados de carregamento, vazio e erro.
+- **Utilitários** (`utils/*.test.ts`): formatação de datas e horários, duração, status e data atual.
 - **`App.tsx`**: redirecionamento para `/login` quando não autenticado, acesso ao dashboard quando autenticado e fallback de rotas desconhecidas.
 
 Não é uma suíte E2E: os testes usam mocks da camada de API (`api/*.ts`) e do `fetch`, então a fonte de verdade sobre regras de negócio (capacidade, conflitos, autorização) continua sendo o backend e seus próprios testes.
@@ -479,6 +483,7 @@ Além da suíte automatizada, vale conferir manualmente antes de um deploy:
 - Reserva cancelada não exibe ações duplicadas.
 - Horários são exibidos no fuso local do navegador.
 - Perfil altera senha somente com senha atual correta.
+- Ao excluir uma sala que estava em edição, o formulário é resetado.
 
 ---
 
@@ -501,10 +506,30 @@ npm run preview
 Em produção, configure `VITE_API_URL` antes do build, pois variáveis `VITE_*` são incorporadas ao bundle durante a compilação:
 
 ```env
-VITE_API_URL=https://api.exemplo.com
+VITE_API_URL=https://meeting-room-backend-zi7k.onrender.com
 ```
 
 O servidor de produção também precisa permitir a origem do frontend no CORS.
+
+### Deploy no Render
+
+O frontend está publicado como um Static Site e utiliza o backend publicado como um Web Service:
+
+**[https://meeting-room-frontend-1hc3.onrender.com](https://meeting-room-frontend-1hc3.onrender.com)**
+
+Uma configuração típica é:
+
+```text
+Root Directory: frontend
+Build Command: npm install && npm run build
+Publish Directory: dist
+```
+
+O backend/API está disponível em:
+
+**[https://meeting-room-backend-zi7k.onrender.com](https://meeting-room-backend-zi7k.onrender.com)**
+
+Configure `VITE_API_URL` com essa URL antes do build. Como este é um ambiente gratuito de teste, os serviços podem entrar em suspensão quando ficam sem acesso e levar alguns segundos para responder na primeira abertura. Também podem ocorrer cold starts, lentidão, reinicializações ou indisponibilidade temporária.
 
 ---
 

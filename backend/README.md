@@ -28,13 +28,15 @@ Este é o backend de um sistema de reserva de salas de reunião que permite:
 - ✅ **Autenticação JWT** com roles (USER / ADMIN)
 - ✅ **Gerenciamento de Salas** (listar, criar com permissão de admin)
 - ✅ **Reservas de Salas** (criar, listar, atualizar, cancelar)
-- ✅ **Detecção de Conflitos** (não permite sobreposição de horários)
+- ✅ **Detecção de Conflitos** (não permite sobreposição indevida de horários)
+- ✅ **Controle de Capacidade** com informação das vagas restantes
+- ✅ **Consolidação de Reservas ADMIN** no mesmo dia, sala e horário exato
 - ✅ **Controle de Acesso** baseado em papéis (RBAC)
 - ✅ **Rate Limiting** no login (5 tentativas/minuto)
 - ✅ **Validação Global** de payloads (DTOs)
 - ✅ **Tratamento Centralizado** de exceções
 - ✅ **Headers de Segurança** (Helmet, CORS, HSTS)
-- ✅ **Testes Unitários** com Jest (78 testes, 16 suites, cobertura mínima de 80%)
+- ✅ **Testes Unitários** com Jest (84 testes, 16 suites, cobertura mínima de 80%)
 
 ---
 
@@ -445,7 +447,17 @@ Content-Type: application/json
 - `400 Bad Request` - Formato inválido (date deve ser YYYY-MM-DD, times HH:mm)
 - `401 Unauthorized` - Token ausente
 - `404 Not Found` - Sala não existe
-- `409 Conflict` - Horário já reservado na sala
+- `409 Conflict` - Capacidade insuficiente ou conflito de horário
+
+Regras de negócio:
+
+- A duração mínima é de uma hora e o horário final deve ser posterior ao inicial.
+- Não é permitido reservar horários no passado.
+- Usuários comuns não podem criar reservas sobrepostas na mesma sala e horário.
+- ADMIN pode solicitar mais participantes, desde que a capacidade disponível seja respeitada.
+- Se o ADMIN repetir exatamente sua sala, data e horário, a reserva é consolidada: os participantes são somados e uma nova justificativa é exigida.
+- Quando a capacidade é excedida, a API informa a capacidade total e as vagas restantes.
+- Reservas canceladas não ocupam capacidade.
 
 ---
 
@@ -767,7 +779,7 @@ A suíte cresceu bastante desde a primeira versão deste README. Hoje ela cobre 
 | Validação (DTOs) | `validation.dto.spec.ts` |
 | App | `app.controller.spec.ts` |
 
-**Total atual: 78 testes em 16 suites, todos passando.**
+**Total atual: 84 testes em 16 suites, todos passando.**
 
 Além disso, o `package.json` define um piso de **80% de cobertura** (statements, branches, funções e linhas) via `coverageThreshold` do Jest. Se algum PR reduzir a cobertura abaixo disso, `npm run test:cov` falha — é a rede de segurança contra regressões silenciosas.
 
@@ -799,7 +811,9 @@ npm run test -- auth.service
 #### Reservations Service
 ```typescript
 // Criar reserva com sucesso
-// Rejeitar reserva com hora duplicada → ConflictException
+// Rejeitar sobreposição para usuário comum → ConflictException
+// Consolidar reserva ADMIN no mesmo horário
+// Informar vagas restantes quando a capacidade é excedida
 // Rejeitar reserva no passado → BadRequestException
 // Rejeitar reserva com startTime >= endTime → BadRequestException
 // Atualizar reserva com permissão de dono
@@ -819,6 +833,20 @@ npm run test -- auth.service
 ---
 
 ## 💾 Banco de Dados
+
+## 🌐 Deploy e ambiente de teste
+
+O projeto está publicado no Render e a aplicação completa pode ser acessada em:
+
+**[https://meeting-room-frontend-1hc3.onrender.com](https://meeting-room-frontend-1hc3.onrender.com)**
+
+A API deste backend está disponível em:
+
+**[https://meeting-room-backend-zi7k.onrender.com](https://meeting-room-backend-zi7k.onrender.com)**
+
+O frontend utiliza a API pública através da variável `VITE_API_URL`. A origem pública do frontend também deve estar autorizada no `FRONTEND_URL` do backend.
+
+Este endereço utiliza uma hospedagem gratuita de teste. Em razão das limitações desse tipo de plano, podem ocorrer cold starts, demora na primeira requisição, reinicializações, instabilidade temporária ou indisponibilidade eventual. Esses comportamentos são esperados em um ambiente de demonstração e não representam necessariamente uma falha na lógica da API.
 
 ### Schema Prisma
 
@@ -854,9 +882,11 @@ model Reservation {
   date      DateTime
   startTime DateTime
   endTime   DateTime
+  attendeesCount Int              @default(1)
+  justification  String?
   status    ReservationStatus @default(CONFIRMED)
   userId    String
-  roomId    String
+  roomId     String
   user      User              @relation(fields: [userId], references: [id])
   room      Room              @relation(fields: [roomId], references: [id])
   createdAt DateTime          @default(now())
@@ -922,8 +952,10 @@ Cria:
 - ✅ Login em massa → 429 Too Many Requests
 - ✅ Payload inválido → 400 Bad Request
 - ✅ Conflito de horário → 409 Conflict
+- ✅ Capacidade insuficiente informa as vagas restantes
+- ✅ Reserva ADMIN no mesmo horário consolida participantes e justificativa
 - ✅ Headers de segurança (Helmet, CORS, HSTS)
-- ✅ 78 testes unitários passando em 16 suites
+- ✅ 82 testes unitários passando em 16 suites
 - ✅ Cobertura mínima de 80% (statements, branches, funções e linhas)
 - ✅ Rate limiting funcionando
 - ✅ Banco de dados com seed
