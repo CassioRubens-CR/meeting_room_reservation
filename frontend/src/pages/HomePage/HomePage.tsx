@@ -31,7 +31,6 @@ export function HomePage() {
 
   return (
     <Layout>
-      {/* Welcome Section */}
       <section className="mb-6 rounded-2xl border border-brand-200 bg-white p-4 shadow-sm sm:p-6">
         <h2 className="text-lg font-semibold text-stone-900 sm:text-xl">
           Bem-vindo, {user?.name?.split(' ')[0]}!
@@ -46,9 +45,7 @@ export function HomePage() {
         </p>
       </section>
 
-      {/* Features Grid */}
         <div className="grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {/* Rooms Feature */}
         <Link to="/rooms" className="rounded-lg border border-stone-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md sm:p-6">
           <div className="mb-3 inline-flex items-center justify-center rounded-lg bg-brand-100 p-2 sm:p-3">
             <span className="text-lg sm:text-2xl">🏢</span>
@@ -59,7 +56,6 @@ export function HomePage() {
           </p>
         </Link>
 
-        {/* Reservations Feature */}
         <Link to="/reservations" className="rounded-lg border border-stone-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md sm:p-6">
           <div className="mb-3 inline-flex items-center justify-center rounded-lg bg-blue-100 p-2 sm:p-3">
             <span className="text-lg sm:text-2xl">📅</span>
@@ -70,7 +66,6 @@ export function HomePage() {
           </p>
         </Link>
 
-        {/* Profile Feature */}
         <Link
           to="/profile"
           className="rounded-lg border border-stone-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md sm:p-6"

@@ -46,7 +46,6 @@ export function App() {
           )
         })}
 
-        {/* Catch-all: redirect unknown routes to home */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
