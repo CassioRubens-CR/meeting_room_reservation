@@ -7,22 +7,27 @@ import { useReservationsStore, useRoomsStore } from '../../store'
 export function HomePage() {
   const { token, user } = useAuthStore()
   const { rooms, fetchRooms } = useRoomsStore()
-  const { reservations, fetchMyReservations } = useReservationsStore()
+  const {
+    reservations,
+    loading: reservationsLoading,
+    fetchMyReservations,
+  } = useReservationsStore()
 
   useEffect(() => {
     if (token) {
-      if (rooms.length === 0) {
-        fetchRooms(token).catch(() => {
-          // Error is exposed by the rooms store.
-        })
-      }
-      if (reservations.length === 0) {
-        fetchMyReservations(token).catch(() => {
-          // Error is exposed by the reservations store.
-        })
-      }
+      fetchMyReservations(token).catch(() => {
+        // Error is exposed by the reservations store.
+      })
     }
-  }, [fetchMyReservations, fetchRooms, reservations.length, rooms.length, token])
+  }, [fetchMyReservations, token])
+
+  useEffect(() => {
+    if (token && rooms.length === 0) {
+      fetchRooms(token).catch(() => {
+        // Error is exposed by the rooms store.
+      })
+    }
+  }, [fetchRooms, rooms.length, token])
 
   return (
     <Layout>
@@ -61,7 +66,7 @@ export function HomePage() {
           </div>
           <h3 className="font-medium text-stone-900 sm:text-lg">Minhas Reservas</h3>
           <p className="mt-2 text-xs text-stone-600 sm:text-sm">
-            {reservations.length} reserva(s) cadastrada(s).
+            {reservationsLoading ? 'Carregando reservas...' : `${reservations.length} reserva(s) cadastrada(s).`}
           </p>
         </Link>
 

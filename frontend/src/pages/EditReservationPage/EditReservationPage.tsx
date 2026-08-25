@@ -266,19 +266,19 @@ export function EditReservationPage() {
               </div>
             )}
 
-            {isAdmin && attendeesCount > 1 && (
+            {isAdmin && (
               <div>
                 <label htmlFor="justification" className="block text-sm font-medium text-stone-700">
-                  Justificativa
+                  Justificativa {attendeesCount > 1 && '(obrigatória)'}
                 </label>
                 <textarea
                   id="justification"
                   value={justification}
                   onChange={(event) => setJustification(event.target.value)}
-                  required
+                  required={attendeesCount > 1}
                   disabled={loading}
                   rows={3}
-                  placeholder="Para reservas com mais de 1 participante, informe a finalidade."
+                  placeholder="Informe a finalidade da reserva, se necessário."
                   className="mt-1 w-full resize-y rounded-lg border border-stone-300 px-3 py-3 text-sm text-stone-900 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 disabled:bg-stone-50"
                 />
               </div>

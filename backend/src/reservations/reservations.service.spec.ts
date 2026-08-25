@@ -461,6 +461,57 @@ describe('ReservationsService', () => {
     );
   });
 
+  it('returns the dedicated admin message when editing into a conflict without justification', async () => {
+    repository.findById.mockResolvedValue({
+      id: 'reservation-1',
+      userId: 'admin-1',
+      roomId: 'room-1',
+      date: new Date('2099-01-01T00:00:00.000Z'),
+      startTime: new Date('2099-01-01T10:00:00.000Z'),
+      endTime: new Date('2099-01-01T11:00:00.000Z'),
+    });
+    repository.findConfirmedOverlappingByUser.mockResolvedValue({
+      id: 'reservation-2',
+    });
+
+    await expect(
+      service.update('reservation-1', 'admin-1', 'ADMIN', {
+        startTime: '10:30',
+        endTime: '11:30',
+      }),
+    ).rejects.toThrow(
+      'Como administrador, você já possui uma reserva conflitante neste horário. Informe uma justificativa para realizar este agendamento.',
+    );
+    expect(repository.update).not.toHaveBeenCalled();
+  });
+
+  it('allows an admin to edit into a conflict with a justification', async () => {
+    repository.findById.mockResolvedValue({
+      id: 'reservation-1',
+      userId: 'admin-1',
+      roomId: 'room-1',
+      date: new Date('2099-01-01T00:00:00.000Z'),
+      startTime: new Date('2099-01-01T10:00:00.000Z'),
+      endTime: new Date('2099-01-01T11:00:00.000Z'),
+    });
+    repository.findConfirmedOverlappingByUser.mockResolvedValue({
+      id: 'reservation-2',
+    });
+    repository.update.mockResolvedValue({ id: 'reservation-1' });
+
+    await expect(
+      service.update('reservation-1', 'admin-1', 'ADMIN', {
+        startTime: '10:30',
+        endTime: '11:30',
+        justification: 'Atendimento simultâneo',
+      }),
+    ).resolves.toEqual({ id: 'reservation-1' });
+    expect(repository.update).toHaveBeenCalledWith(
+      'reservation-1',
+      expect.objectContaining({ justification: 'Atendimento simultâneo' }),
+    );
+  });
+
   it('allows editing to the same time in a different room', async () => {
     repository.findById.mockResolvedValue({
       id: 'reservation-1',

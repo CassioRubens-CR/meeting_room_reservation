@@ -187,8 +187,18 @@ export class ReservationsService {
         id,
       );
 
-    if (overlappingReservation) {
+    if (overlappingReservation && role !== 'ADMIN') {
       throw new ConflictException('Você já possui outra reserva neste horário');
+    }
+
+    if (
+      overlappingReservation &&
+      role === 'ADMIN' &&
+      !dto.justification?.trim()
+    ) {
+      throw new BadRequestException(
+        'Como administrador, você já possui uma reserva conflitante neste horário. Informe uma justificativa para realizar este agendamento.',
+      );
     }
 
     const attendeesCount =

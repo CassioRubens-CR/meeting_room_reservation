@@ -120,7 +120,7 @@ describe('reservation form flows', () => {
         'token-abc',
       )
     })
-    expect(screen.getByText('Minhas reservas')).toBeInTheDocument()
+    expect(await screen.findByText('Minhas reservas')).toBeInTheDocument()
   })
 
   it('renders create loading and not-found states', async () => {

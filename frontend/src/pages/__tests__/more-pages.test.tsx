@@ -100,6 +100,23 @@ describe('HomePage', () => {
     ).toBeInTheDocument()
     expect(screen.getByText('Gerenciar Salas')).toBeInTheDocument()
   })
+
+  it('refreshes reservations when the dashboard opens with stale store data', async () => {
+    const fetchReservationsSpy = vi.spyOn(api, 'fetchMyReservations').mockResolvedValue([])
+    useReservationsStore.setState({ reservations: [mockReservation] })
+
+    render(
+      <MemoryRouter>
+        <HomePage />
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByText('Carregando reservas...')).toBeInTheDocument()
+    await waitFor(() => {
+      expect(fetchReservationsSpy).toHaveBeenCalledWith('token-abc')
+    })
+    expect(await screen.findByText('0 reserva(s) cadastrada(s).')).toBeInTheDocument()
+  })
 })
 
 describe('ProfilePage', () => {

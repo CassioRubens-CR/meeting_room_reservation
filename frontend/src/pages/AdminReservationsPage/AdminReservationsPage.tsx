@@ -18,6 +18,7 @@ export function AdminReservationsPage() {
   const [date, setDate] = useState('')
   const [roomId, setRoomId] = useState('')
   const [userId, setUserId] = useState('')
+  const [appliedUserId, setAppliedUserId] = useState('')
 
   const isAdmin = user?.role === 'ADMIN'
   const users = Array.from(
@@ -25,8 +26,8 @@ export function AdminReservationsPage() {
       adminReservations.map((reservation) => [reservation.user.id, reservation.user]),
     ).values(),
   )
-  const visibleReservations = userId
-    ? adminReservations.filter((reservation) => reservation.user.id === userId)
+  const visibleReservations = appliedUserId
+    ? adminReservations.filter((reservation) => reservation.user.id === appliedUserId)
     : adminReservations
 
   const loadReservations = (filters = { date, roomId }) => {
@@ -62,6 +63,7 @@ export function AdminReservationsPage() {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     clearError()
+    setAppliedUserId(userId)
     loadReservations()
   }
 
@@ -69,6 +71,7 @@ export function AdminReservationsPage() {
     setDate('')
     setRoomId('')
     setUserId('')
+    setAppliedUserId('')
     clearError()
     loadReservations({ date: '', roomId: '' })
   }
@@ -157,7 +160,7 @@ export function AdminReservationsPage() {
                   <option value="">Todos os usuários</option>
                   {users.map((reservationUser) => (
                     <option key={reservationUser.id} value={reservationUser.id}>
-                      {reservationUser.name} - {reservationUser.email}
+                      {reservationUser.name}
                     </option>
                   ))}
                 </select>
