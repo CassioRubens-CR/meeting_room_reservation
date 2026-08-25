@@ -76,7 +76,7 @@ meeting_room_reservation/
 Clone o projeto e instale as dependências de cada parte:
 
 ```bash
-git clone <url-do-repositorio>
+git clone https://github.com/CassioRubens-CR/meeting_room_reservation.git
 cd meeting_room_reservation
 
 cd backend
@@ -85,6 +85,37 @@ npm install
 cd ../frontend
 npm install
 ```
+
+## Executar o projeto com um comando
+
+Como o projeto possui frontend e backend separados, a raiz também oferece scripts para iniciar os dois serviços juntos. Eles apenas chamam os comandos oficiais de cada pacote e não substituem a execução individual documentada nas pastas `frontend/` e `backend/`.
+
+### Windows PowerShell
+
+```powershell
+.\run.ps1 -Install
+.\run.ps1
+```
+
+Use `-Install` somente na primeira execução ou quando as dependências precisarem ser reinstaladas. Para permitir scripts locais no PowerShell, se necessário:
+
+```powershell
+Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+```
+
+### macOS, Linux ou Git Bash
+
+```bash
+./run.sh --install
+./run.sh
+```
+
+Os scripts iniciam:
+
+- Backend em `http://localhost:3001`
+- Frontend em `http://localhost:5173`
+
+No Windows, cada serviço é aberto em uma janela própria do PowerShell. No macOS, Linux e Git Bash, os dois processos compartilham o terminal. Use `Ctrl+C` para encerrar a execução no `run.sh`; no PowerShell, feche o terminal que iniciou o script.
 
 ## Configuração do backend
 
