@@ -1,6 +1,6 @@
 # Meeting Room Reservation
 
-Sistema web para gerenciamento e reserva de salas de reunião. Usuários podem criar uma conta, consultar salas disponíveis, realizar reservas e gerenciar seus próprios agendamentos. Administradores possuem recursos adicionais para gerenciar salas e realizar reservas com mais de um participante, informando uma justificativa.
+Sistema web full-stack para gerenciamento e reserva de salas de reunião. Usuários podem criar uma conta, consultar salas disponíveis, realizar reservas e gerenciar seus próprios agendamentos. Administradores possuem recursos adicionais para gerenciar salas e realizar reservas com mais de um participante, informando uma justificativa.
 
 ## O que o projeto oferece
 
@@ -17,25 +17,42 @@ Sistema web para gerenciamento e reserva de salas de reunião. Usuários podem c
 
 ## 🚀 Aplicação publicada - Links do Projeto & Demonstração
 
-A aplicação completa está disponível para teste no Render:
+A aplicação completa está em produção na plataforma **Render**:
 
-* **Aplicaçao Rodando:**[Acessar o Meeting Room Reservation](https://meeting-room-frontend-1hc3.onrender.com)**
+*   **🖥️ Frontend Web (Aplicação publicada):** [Acessar a Aplicação](https://meeting-room-frontend-1hc3.onrender.com)
+*   **⚙️ Backend/API:** [Endpoints da API](https://meeting-room-backend-zi7k.onrender.com)
 
-Serviços publicados:
+##### Usuário de teste (Test User): 
+```text
+Admin | admin@example.com | admin123456
+User | user@example.com  | user1234567
+```
 
-- Frontend: [https://meeting-room-frontend-1hc3.onrender.com](https://meeting-room-frontend-1hc3.onrender.com)
-- Backend/API: [https://meeting-room-backend-zi7k.onrender.com](https://meeting-room-backend-zi7k.onrender.com)
-
-> ⚠️ **Nota Importante para Avaliação (Cold Start):**
-> O projeto está hospedado na camada gratuita da plataforma **Render**. Por limitações desse plano, o servidor do back-end entra em modo de repouso após 15 minutos de inatividade. 
+--- 
+> ⚠️ **Nota de Avaliação (Cold Start):**
+> O projeto está hospedado na camada gratuita do Render. Se o sistema estiver inativo, o primeiro carregamento ou requisição pode demorar **de 1 a 2 minutos** para o container acordar. Após esse aquecimento, o sistema opera com velocidade normal.
 > 
-> * **Primeiro Acesso:** O primeiro carregamento, login ou requisição pode demorar **de 1 a 2 minutos** para responder (tempo que a hospedagem leva para "acordar" o container). Após esse aquecimento, o sistema opera com velocidade normal.
-> * **Persistência do Banco:** Para fins de teste e desafio técnico, a aplicação utiliza **SQLite com Prisma** rodando em disco temporário efêmero. O banco reseta para o estado inicial padrão (via *seed*) a cada reinicialização automática do servidor.
+> *   **Persistência:** O banco utiliza **SQLite com Prisma** rodando em disco temporário efêmero. O estado reseta para os dados padrão (*seed*) a cada reinicialização automática do servidor.
 
+---
 
-## Tecnologias
+## 📐 Decisões de Arquitetura & Tech Stack
 
 ### Backend
+*   **NestJS & TypeScript:** Escolhido pela arquitetura modular baseada em injeção de dependências, garantindo escalabilidade, facilidade de testes unitários e aplicação natural dos princípios **SOLID**.
+*   **Prisma ORM + SQLite:** Agilidade na modelagem de dados e facilidade de portabilidade do ambiente com migrations estruturadas.
+*   **Segurança:** Implementação de JWT via Passport, criptografia de senhas com `bcrypt` e proteção de cabeçalhos HTTP usando `Helmet`.
+
+### Frontend
+*   **React + Vite:** Ambiente de desenvolvimento ultra-rápido focado em performance.
+*   **Zustand:** Gerenciamento de estado global leve, escalável e sem o boilerplate excessivo do Redux.
+*   **Tailwind CSS:** Estilização focada em utilitários, garantindo responsividade mobile/desktop nativa e consistente.
+
+---
+
+## 🛠️ Tecnologias
+
+### ⚙️ Backend
 
 - NestJS
 - TypeScript
@@ -47,7 +64,7 @@ Serviços publicados:
 - class-validator
 - Helmet
 
-### Frontend
+### 🖥️ Frontend
 
 - React
 - TypeScript
@@ -56,7 +73,7 @@ Serviços publicados:
 - Zustand
 - Tailwind CSS
 
-## Estrutura
+## 📁 Estrutura
 
 ```text
 meeting_room_reservation/
@@ -71,7 +88,7 @@ meeting_room_reservation/
 - npm 10 ou superior.
 - Git.
 
-## Instalação
+## ⚡ Instalação
 
 Clone o projeto e instale as dependências de cada parte:
 
@@ -86,7 +103,7 @@ cd ../frontend
 npm install
 ```
 
-## Executar o projeto com um comando
+## ⚡ Executar o projeto com um comando
 
 Como o projeto possui frontend e backend separados, a raiz também oferece scripts para iniciar os dois serviços juntos. Eles apenas chamam os comandos oficiais de cada pacote e não substituem a execução individual documentada nas pastas `frontend/` e `backend/`.
 
@@ -117,7 +134,7 @@ Os scripts iniciam:
 
 No Windows, cada serviço é aberto em uma janela própria do PowerShell. No macOS, Linux e Git Bash, os dois processos compartilham o terminal. Use `Ctrl+C` para encerrar a execução no `run.sh`; no PowerShell, feche o terminal que iniciou o script.
 
-## Configuração do backend
+## ⚙️ Configuração do backend
 
 Crie `backend/.env` a partir do exemplo:
 
@@ -274,34 +291,7 @@ npm run lint
 npm run build
 ```
 
-## Deploy no Render
-
-O frontend está publicado como um Static Site e o backend como um Web Service no Render. Os dois serviços trabalham juntos para disponibilizar a aplicação completa.
-
-Configuração típica:
-
-```text
-Root Directory: frontend
-Build Command: npm install && npm run build
-Publish Directory: dist
-```
-
-Antes do build, configure a variável:
-
-```env
-VITE_API_URL=https://meeting-room-backend-zi7k.onrender.com
-```
-
-O backend deve permitir a origem do frontend em `FRONTEND_URL`. Os serviços publicados atualmente são:
-
-```text
-https://meeting-room-frontend-1hc3.onrender.com
-https://meeting-room-backend-zi7k.onrender.com
-```
-
-Como o ambiente é gratuito e destinado a testes, o serviço pode entrar em modo de suspensão, apresentar cold start, responder mais lentamente ou ficar temporariamente indisponível. Isso não representa necessariamente um erro na aplicação.
-
-## Cobertura de testes
+##  🧪 Cobertura de testes
 
 Backend e frontend têm uma suíte de testes automatizados (Jest e Vitest, respectivamente) com um piso mínimo de **80% de cobertura** em statements, branches, funções e linhas. Se a cobertura cair abaixo disso, o comando termina com erro — é a forma de garantir que o projeto não regrida silenciosamente.
 
@@ -321,3 +311,9 @@ No momento, os dois lados estão bem acima do piso combinado (na casa dos 90%+ e
 
 - [Documentação técnica do backend](backend/README.md)
 - [Documentação técnica do frontend](frontend/README.md)
+
+## 📄 Licença
+
+Este projeto está sob a licença MIT. Veja o arquivo LICENSE para mais detalhes.
+
+---

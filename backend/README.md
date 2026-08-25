@@ -36,7 +36,7 @@ Este é o backend de um sistema de reserva de salas de reunião que permite:
 - ✅ **Validação Global** de payloads (DTOs)
 - ✅ **Tratamento Centralizado** de exceções
 - ✅ **Headers de Segurança** (Helmet, CORS, HSTS)
-- ✅ **Testes Unitários** com Jest (84 testes, 16 suites, cobertura mínima de 80%)
+- ✅ **Testes Unitários** com Jest (92 testes, 16 suites, cobertura mínima de 80%)
 
 ---
 
@@ -178,7 +178,6 @@ backend/
 1. **Clone o repositório:**
    ```bash
    git clone https://github.com/seu-usuario/meeting_room_reservation.git
-   cd meeting_room_reservation/backend
    ```
 
 2. **Instale as dependências:**
@@ -362,14 +361,14 @@ Authorization: Bearer {accessToken}
 [
   {
     "id": "uuid",
-    "name": "Meeting Room A",
+    "name": "Sala de Reunião A",
     "capacity": 10,
     "location": "1º Andar",
     "createdAt": "2026-08-21T16:38:32.711Z"
   },
   {
     "id": "uuid",
-    "name": "Meeting Room B",
+    "name": "Sala de Reunião B",
     "capacity": 20,
     "location": "2º Andar",
     "createdAt": "2026-08-21T16:38:32.733Z"
@@ -389,9 +388,9 @@ Authorization: Bearer {adminToken}
 Content-Type: application/json
 
 {
-  "name": "Meeting Room C",
+  "name": "Sala de Reunião  C",
   "capacity": 15,
-  "location": "3rd Floor"
+  "location": "3º Andar"
 }
 ```
 
@@ -399,9 +398,9 @@ Content-Type: application/json
 ```json
 {
   "id": "uuid",
-  "name": "Meeting Room C",
+  "name": "Sala de Reunião C",
   "capacity": 15,
-  "location": "3rd Floor",
+  "location": "3º Andar",
   "createdAt": "2026-08-21T16:39:14.122Z"
 }
 ```
@@ -779,7 +778,7 @@ A suíte cresceu bastante desde a primeira versão deste README. Hoje ela cobre 
 | Validação (DTOs) | `validation.dto.spec.ts` |
 | App | `app.controller.spec.ts` |
 
-**Total atual: 84 testes em 16 suites, todos passando.**
+**Total atual: 92 testes em 16 suites, todos passando.**
 
 Além disso, o `package.json` define um piso de **80% de cobertura** (statements, branches, funções e linhas) via `coverageThreshold` do Jest. Se algum PR reduzir a cobertura abaixo disso, `npm run test:cov` falha — é a rede de segurança contra regressões silenciosas.
 
@@ -932,7 +931,7 @@ npx ts-node prisma/seed.ts
 Cria:
 - **Admin**: `admin@example.com` / `admin123456` (role: ADMIN)
 - **User**: `user@example.com` / `user1234567` (role: USER)
-- **Rooms**: Meeting Room A, B, C
+- **Rooms**: Meeting Room A, B
 
 ---
 
@@ -955,7 +954,7 @@ Cria:
 - ✅ Capacidade insuficiente informa as vagas restantes
 - ✅ Reserva ADMIN no mesmo horário consolida participantes e justificativa
 - ✅ Headers de segurança (Helmet, CORS, HSTS)
-- ✅ 82 testes unitários passando em 16 suites
+- ✅ 92 testes unitários passando em 16 suites
 - ✅ Cobertura mínima de 80% (statements, branches, funções e linhas)
 - ✅ Rate limiting funcionando
 - ✅ Banco de dados com seed
@@ -1351,7 +1350,7 @@ docker exec meeting_room_db pg_dump -U admin meeting_room > backup.sql
 
 Ao usar **Prisma com schema declarativo**, você consegue:
 
-1. ✅ Começar com SQLite em 5 minutos
+1. ✅ Começo rápido e prático com SQLite
 2. ✅ Migrar para PostgreSQL/MySQL/Neon **sem mudar uma linha de código**
 3. ✅ Ter tipos TypeScript automáticos
 4. ✅ Reversibilidade: voltar de Neon para Docker sem problemas
@@ -1407,16 +1406,6 @@ PORT=3001
 
 ---
 
-## 📄 Licença
-
-Este projeto está sob a licença UNLICENSED.
-
----
-
-**Última atualização:** 23 de agosto de 2026
-**Status:** ✅ Pronto para Produção
-
-
 ## schema prisma
 ```bash
 # validate
@@ -1456,12 +1445,10 @@ npx prisma migrate dev --name nome-da-alteracao
 
 Para mudanças permanentes no modelo, prefira `migrate dev` em vez de `prisma db push`, pois a migration mantém um histórico versionado e reproduzível.
 
-### Fluxo recomendado
+---
 
-1. Alterar `prisma/schema.prisma`.
-2. Validar o schema com `npx prisma validate`.
-3. Criar a migration com `npx prisma migrate dev --name nome-da-alteracao`.
-4. Verificar a aplicação e os testes.
-5. Commitar o schema e a pasta `prisma/migrations/` juntos.
+## 📄 Licença
 
+Este projeto está sob a licença MIT. Veja o arquivo LICENSE para mais detalhes.
 
+---

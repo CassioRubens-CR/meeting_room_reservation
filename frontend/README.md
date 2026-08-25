@@ -47,10 +47,22 @@ O frontend oferece:
 
 O backend permanece a fonte de verdade para autenticação, autorização, capacidade, conflitos de horário e persistência.
 
-A aplicação está completa e publicada no Render:
+A aplicação está completa e publicada no **Render**:
 
-- Frontend: **[https://meeting-room-frontend-1hc3.onrender.com](https://meeting-room-frontend-1hc3.onrender.com)**
-- Backend/API: **[https://meeting-room-backend-zi7k.onrender.com](https://meeting-room-backend-zi7k.onrender.com)**
+*   **🖥️ Frontend Web (Aplicação publicada):** [Acessar a Aplicação](https://meeting-room-frontend-1hc3.onrender.com)
+*   **⚙️ Backend/API:** [Endpoints da API](https://meeting-room-backend-zi7k.onrender.com)
+
+##### Usuário de teste (Test User): 
+```text
+Admin | admin@example.com | admin123456
+User | user@example.com  | user1234567
+```
+
+--- 
+> ⚠️ **Nota de Avaliação (Cold Start):**
+> O projeto está hospedado na camada gratuita do Render. Se o sistema estiver inativo, o primeiro carregamento ou requisição pode demorar **de 1 a 2 minutos** para o container acordar. Após esse aquecimento, o sistema opera com velocidade normal.
+> 
+> *   **Persistência:** O banco utiliza **SQLite com Prisma** rodando em disco temporário efêmero. O estado reseta para os dados padrão (*seed*) a cada reinicialização automática do servidor.
 
 ---
 
@@ -336,7 +348,7 @@ Cada store mantém `loading`, `error` e dados de domínio, além de atualizar a 
 
 ## 📡 Camada de API
 
-O cliente em [api/http.ts](src/api/http.ts) centraliza:
+O cliente em [api/http/http.ts](src/api/http/http.ts) centraliza:
 
 - URL base configurável por `VITE_API_URL`.
 - Serialização JSON.
@@ -463,7 +475,7 @@ O que a suíte cobre hoje:
 - **Utilitários** (`utils/*.test.ts`): formatação de datas e horários, duração, status e data atual.
 - **`App.tsx`**: redirecionamento para `/login` quando não autenticado, acesso ao dashboard quando autenticado e fallback de rotas desconhecidas.
 
-Não é uma suíte E2E: os testes usam mocks da camada de API (`api/*.ts`) e do `fetch`, então a fonte de verdade sobre regras de negócio (capacidade, conflitos, autorização) continua sendo o backend e seus próprios testes.
+Não é uma suíte E2E: os testes usam mocks da camada de API (`api/*/*.ts`) e do `fetch`, então a fonte de verdade sobre regras de negócio (capacidade, conflitos, autorização) continua sendo o backend e seus próprios testes.
 
 ### Checklist manual complementar
 
@@ -511,26 +523,6 @@ VITE_API_URL=https://meeting-room-backend-zi7k.onrender.com
 
 O servidor de produção também precisa permitir a origem do frontend no CORS.
 
-### Deploy no Render
-
-O frontend está publicado como um Static Site e utiliza o backend publicado como um Web Service:
-
-**[https://meeting-room-frontend-1hc3.onrender.com](https://meeting-room-frontend-1hc3.onrender.com)**
-
-Uma configuração típica é:
-
-```text
-Root Directory: frontend
-Build Command: npm install && npm run build
-Publish Directory: dist
-```
-
-O backend/API está disponível em:
-
-**[https://meeting-room-backend-zi7k.onrender.com](https://meeting-room-backend-zi7k.onrender.com)**
-
-Configure `VITE_API_URL` com essa URL antes do build. Como este é um ambiente gratuito de teste, os serviços podem entrar em suspensão quando ficam sem acesso e levar alguns segundos para responder na primeira abertura. Também podem ocorrer cold starts, lentidão, reinicializações ou indisponibilidade temporária.
-
 ---
 
 ## 🔧 Troubleshooting
@@ -561,7 +553,7 @@ Se estiver usando outro host, como `127.0.0.1` em vez de `localhost`, o navegado
 
 ### Erro `EBUSY` ou `EPERM` no Vite
 
-Dropbox, antivírus ou outro processo pode bloquear `frontend/node_modules/.vite` ou `frontend/dist`. Pare processos Node duplicados e tente novamente. Para desenvolvimento frequente, prefira uma pasta fora do Dropbox.
+Dropbox, antivírus ou outro processo pode bloquear `frontend/node_modules/.vite` ou `frontend/dist`. Pare processos Node duplicados e tente novamente.
 
 ### Erro de porta ocupada
 
@@ -579,3 +571,11 @@ Encerre apenas o processo correto antes de iniciar outra instância.
 A documentação técnica da API está em [backend/README.md](../backend/README.md).
 
 O README geral do projeto está em [../README.md](../README.md).
+
+---
+
+## 📄 Licença
+
+Este projeto está sob a licença MIT. Veja o arquivo LICENSE para mais detalhes.
+
+---
