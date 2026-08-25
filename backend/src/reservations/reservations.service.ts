@@ -58,17 +58,10 @@ export class ReservationsService {
     this.validateJustification(attendeesCount, dto.justification);
 
     const overlappingReservation =
-      await this.repository.findConfirmedOverlappingByUser(
-        userId,
-        dto.roomId,
-        start,
-        end,
-      );
+      await this.repository.findConfirmedOverlappingByUser(userId, start, end);
 
     if (overlappingReservation && role !== 'ADMIN') {
-      throw new ConflictException(
-        'Você já possui uma reserva para esta sala neste horário',
-      );
+      throw new ConflictException('Você já possui outra reserva neste horário');
     }
 
     const existingReservation =
@@ -109,6 +102,16 @@ export class ReservationsService {
         attendeesCount: totalAttendees,
         justification,
       });
+    }
+
+    if (
+      overlappingReservation &&
+      role === 'ADMIN' &&
+      !dto.justification?.trim()
+    ) {
+      throw new BadRequestException(
+        'Como administrador, você já possui uma reserva conflitante neste horário. Informe uma justificativa para realizar este agendamento.',
+      );
     }
 
     const occupiedSeats = await this.repository.sumOverlappingAttendees(
@@ -174,6 +177,18 @@ export class ReservationsService {
 
     if (!room) {
       throw new NotFoundException('Sala não encontrada');
+    }
+
+    const overlappingReservation =
+      await this.repository.findConfirmedOverlappingByUser(
+        userId,
+        start,
+        end,
+        id,
+      );
+
+    if (overlappingReservation) {
+      throw new ConflictException('Você já possui outra reserva neste horário');
     }
 
     const attendeesCount =

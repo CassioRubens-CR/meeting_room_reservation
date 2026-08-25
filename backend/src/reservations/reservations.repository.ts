@@ -35,15 +35,15 @@ export class ReservationsRepository {
 
   findConfirmedOverlappingByUser(
     userId: string,
-    roomId: string,
     start: Date,
     end: Date,
+    excludeId?: string,
   ) {
     return this.prisma.reservation.findFirst({
       where: {
         userId,
-        roomId,
         status: 'CONFIRMED',
+        ...(excludeId ? { id: { not: excludeId } } : {}),
         startTime: { lt: end },
         endTime: { gt: start },
       },

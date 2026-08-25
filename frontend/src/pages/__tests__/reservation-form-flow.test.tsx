@@ -89,7 +89,7 @@ describe('reservation form flows', () => {
     )
 
     fireEvent.change(screen.getByLabelText(/data/i), {
-      target: { value: '2026-08-24' },
+      target: { value: '2099-01-01' },
     })
     fireEvent.change(screen.getByLabelText(/início/i), {
       target: { value: '09:00' },
@@ -111,7 +111,7 @@ describe('reservation form flows', () => {
       expect(createSpy).toHaveBeenCalledWith(
         {
           roomId: 'room-1',
-          date: '2026-08-24',
+          date: '2099-01-01',
           startTime: '09:00',
           endTime: '10:30',
           attendeesCount: 1,
@@ -188,7 +188,7 @@ describe('reservation form flows', () => {
       </MemoryRouter>,
     )
 
-    fireEvent.change(screen.getByLabelText(/data/i), { target: { value: '2026-08-24' } })
+    fireEvent.change(screen.getByLabelText(/data/i), { target: { value: '2099-01-01' } })
     fireEvent.change(screen.getByLabelText(/início/i), { target: { value: '13:00' } })
     fireEvent.change(screen.getByLabelText(/término/i), { target: { value: '10:00' } })
     fireEvent.click(screen.getByRole('button', { name: /confirmar reserva/i }))
@@ -229,7 +229,7 @@ describe('reservation form flows', () => {
     )
 
     fireEvent.change(screen.getByLabelText(/data/i), {
-      target: { value: '2026-08-24' },
+      target: { value: '2099-01-01' },
     })
     const justificationField = screen.getByLabelText(/justificativa/i)
     expect(justificationField).toBeInTheDocument()
@@ -258,7 +258,7 @@ describe('reservation form flows', () => {
       expect(createSpy).toHaveBeenCalledWith(
         {
           roomId: 'room-1',
-          date: '2026-08-24',
+          date: '2099-01-01',
           startTime: '09:00',
           endTime: '10:00',
           attendeesCount: 3,
@@ -384,7 +384,7 @@ describe('reservation form flows', () => {
     const plainReservation = {
       ...existingReservation,
       id: 'reservation-plain',
-      date: '2026-08-24',
+      date: '2099-01-01',
       startTime: '09:00',
       endTime: '10:00',
       roomId: 'room-missing',
@@ -421,7 +421,7 @@ describe('reservation form flows', () => {
       </MemoryRouter>,
     )
 
-    expect(await screen.findByDisplayValue('2026-08-24')).toBeInTheDocument()
+    expect(await screen.findByDisplayValue('2099-01-01')).toBeInTheDocument()
     expect(screen.getByDisplayValue('09:00')).toBeInTheDocument()
     expect(screen.getByDisplayValue('10:00')).toBeInTheDocument()
     expect(screen.getByText('Capacidade da sala: - lugares')).toBeInTheDocument()
@@ -508,7 +508,7 @@ describe('reservation form flows', () => {
       </MemoryRouter>,
     )
 
-    fireEvent.change(screen.getByLabelText(/data/i), { target: { value: '2026-08-24' } })
+    fireEvent.change(screen.getByLabelText(/data/i), { target: { value: '2099-01-01' } })
     fireEvent.change(screen.getByLabelText(/início/i), { target: { value: '13:00' } })
     fireEvent.change(screen.getByLabelText(/término/i), { target: { value: '10:00' } })
     fireEvent.click(screen.getByRole('button', { name: /salvar alterações/i }))

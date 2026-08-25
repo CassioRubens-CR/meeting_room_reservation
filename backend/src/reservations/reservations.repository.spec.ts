@@ -91,7 +91,6 @@ describe('ReservationsRepository', () => {
 
     void repository.findConfirmedOverlappingByUser(
       'user-1',
-      'room-1',
       start,
       end,
     );
@@ -99,8 +98,29 @@ describe('ReservationsRepository', () => {
     expect(prisma.reservation.findFirst).toHaveBeenCalledWith({
       where: {
         userId: 'user-1',
-        roomId: 'room-1',
         status: 'CONFIRMED',
+        startTime: { lt: end },
+        endTime: { gt: start },
+      },
+    });
+  });
+
+  it('excludes the reservation being updated from overlap lookup', () => {
+    const start = new Date('2099-01-01T10:00:00.000Z');
+    const end = new Date('2099-01-01T11:00:00.000Z');
+
+    void repository.findConfirmedOverlappingByUser(
+      'user-1',
+      start,
+      end,
+      'reservation-1',
+    );
+
+    expect(prisma.reservation.findFirst).toHaveBeenCalledWith({
+      where: {
+        userId: 'user-1',
+        status: 'CONFIRMED',
+        id: { not: 'reservation-1' },
         startTime: { lt: end },
         endTime: { gt: start },
       },

@@ -108,7 +108,7 @@ describe('ReservationsService', () => {
     );
   });
 
-  it('rejects a regular user overlapping their reservation in the same room', async () => {
+  it('rejects a regular user overlapping their reservation in any room', async () => {
     repository.findConfirmedOverlappingByUser.mockResolvedValue({
       id: 'reservation-1',
     });
@@ -126,7 +126,77 @@ describe('ReservationsService', () => {
         'USER',
       ),
     ).rejects.toThrow(
-      'Você já possui uma reserva para esta sala neste horário',
+      'Você já possui outra reserva neste horário',
+    );
+    expect(repository.create).not.toHaveBeenCalled();
+  });
+
+  it('rejects the same user reserving the same time in a different room', async () => {
+    repository.findConfirmedOverlappingByUser.mockResolvedValue({
+      id: 'reservation-1',
+    });
+    repository.create.mockResolvedValue({ id: 'reservation-2' });
+
+    await expect(
+      service.create(
+        'user-1',
+        {
+          roomId: 'room-2',
+          date: '2099-01-01',
+          startTime: '10:00',
+          endTime: '11:00',
+          attendeesCount: 1,
+        },
+        'USER',
+      ),
+    ).rejects.toThrow('Você já possui outra reserva neste horário');
+    expect(repository.create).not.toHaveBeenCalled();
+  });
+
+  it('allows an admin to overlap a reservation with a justification', async () => {
+    repository.findConfirmedOverlappingByUser.mockResolvedValue({
+      id: 'reservation-1',
+    });
+    repository.create.mockResolvedValue({ id: 'reservation-2' });
+
+    await expect(
+      service.create(
+        'admin-1',
+        {
+          roomId: 'room-2',
+          date: '2099-01-01',
+          startTime: '10:30',
+          endTime: '11:30',
+          attendeesCount: 1,
+          justification: 'Atendimento simultâneo autorizado',
+        },
+        'ADMIN',
+      ),
+    ).resolves.toEqual({ id: 'reservation-2' });
+    expect(repository.create).toHaveBeenCalledWith(
+      expect.objectContaining({ roomId: 'room-2' }),
+    );
+  });
+
+  it('returns a dedicated message when an admin lacks justification for a conflict', async () => {
+    repository.findConfirmedOverlappingByUser.mockResolvedValue({
+      id: 'reservation-1',
+    });
+
+    await expect(
+      service.create(
+        'admin-1',
+        {
+          roomId: 'room-2',
+          date: '2099-01-01',
+          startTime: '10:30',
+          endTime: '11:30',
+          attendeesCount: 1,
+        },
+        'ADMIN',
+      ),
+    ).rejects.toThrow(
+      'Como administrador, você já possui uma reserva conflitante neste horário. Informe uma justificativa para realizar este agendamento.',
     );
     expect(repository.create).not.toHaveBeenCalled();
   });
@@ -358,6 +428,67 @@ describe('ReservationsService', () => {
       expect.any(Date),
       expect.any(Date),
       'reservation-1',
+    );
+  });
+
+  it('rejects updating a reservation into another overlapping reservation', async () => {
+    repository.findById.mockResolvedValue({
+      id: 'reservation-1',
+      userId: 'user-1',
+      roomId: 'room-1',
+      date: new Date('2099-01-01T00:00:00.000Z'),
+      startTime: new Date('2099-01-01T10:00:00.000Z'),
+      endTime: new Date('2099-01-01T11:00:00.000Z'),
+    });
+    repository.findConfirmedOverlappingByUser.mockResolvedValue({
+      id: 'reservation-2',
+    });
+
+    await expect(
+      service.update('reservation-1', 'user-1', 'USER', {
+        startTime: '10:30',
+        endTime: '11:30',
+      }),
+    ).rejects.toThrow(
+      'Você já possui outra reserva neste horário',
+    );
+    expect(repository.update).not.toHaveBeenCalled();
+    expect(repository.findConfirmedOverlappingByUser).toHaveBeenCalledWith(
+      'user-1',
+      expect.any(Date),
+      expect.any(Date),
+      'reservation-1',
+    );
+  });
+
+  it('allows editing to the same time in a different room', async () => {
+    repository.findById.mockResolvedValue({
+      id: 'reservation-1',
+      userId: 'user-1',
+      roomId: 'room-1',
+      date: new Date('2099-01-01T00:00:00.000Z'),
+      startTime: new Date('2099-01-01T10:00:00.000Z'),
+      endTime: new Date('2099-01-01T11:00:00.000Z'),
+    });
+    repository.findRoom.mockResolvedValue({ capacity: 10 });
+    repository.update.mockResolvedValue({ id: 'reservation-1' });
+
+    await expect(
+      service.update('reservation-1', 'user-1', 'USER', {
+        roomId: 'room-2',
+        startTime: '10:00',
+        endTime: '11:00',
+      }),
+    ).resolves.toEqual({ id: 'reservation-1' });
+    expect(repository.findConfirmedOverlappingByUser).toHaveBeenCalledWith(
+      'user-1',
+      expect.any(Date),
+      expect.any(Date),
+      'reservation-1',
+    );
+    expect(repository.update).toHaveBeenCalledWith(
+      'reservation-1',
+      expect.objectContaining({ roomId: 'room-2' }),
     );
   });
 
