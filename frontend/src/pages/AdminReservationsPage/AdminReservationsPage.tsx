@@ -17,8 +17,17 @@ export function AdminReservationsPage() {
   } = useReservationsStore()
   const [date, setDate] = useState('')
   const [roomId, setRoomId] = useState('')
+  const [userId, setUserId] = useState('')
 
   const isAdmin = user?.role === 'ADMIN'
+  const users = Array.from(
+    new Map(
+      adminReservations.map((reservation) => [reservation.user.id, reservation.user]),
+    ).values(),
+  )
+  const visibleReservations = userId
+    ? adminReservations.filter((reservation) => reservation.user.id === userId)
+    : adminReservations
 
   const loadReservations = (filters = { date, roomId }) => {
     if (token) {
@@ -59,6 +68,7 @@ export function AdminReservationsPage() {
   const handleClear = () => {
     setDate('')
     setRoomId('')
+    setUserId('')
     clearError()
     loadReservations({ date: '', roomId: '' })
   }
@@ -103,7 +113,7 @@ export function AdminReservationsPage() {
           </div>
 
           <section className="rounded-xl border border-brand-200 bg-white p-4 shadow-sm sm:p-6">
-            <form onSubmit={handleSubmit} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:items-end">
+            <form onSubmit={handleSubmit} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:items-end">
               <div>
                 <label htmlFor="date" className="block text-sm font-medium text-stone-700">
                   Data
@@ -130,6 +140,24 @@ export function AdminReservationsPage() {
                   {rooms.map((room) => (
                     <option key={room.id} value={room.id}>
                       {room.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label htmlFor="userId" className="block text-sm font-medium text-stone-700">
+                  Usuário
+                </label>
+                <select
+                  id="userId"
+                  value={userId}
+                  onChange={(event) => setUserId(event.target.value)}
+                  className="mt-1 min-h-11 w-full rounded-lg border border-stone-300 bg-white px-3 py-3 text-sm text-stone-900 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
+                >
+                  <option value="">Todos os usuários</option>
+                  {users.map((reservationUser) => (
+                    <option key={reservationUser.id} value={reservationUser.id}>
+                      {reservationUser.name} - {reservationUser.email}
                     </option>
                   ))}
                 </select>
@@ -166,7 +194,7 @@ export function AdminReservationsPage() {
             </div>
           )}
 
-          {!loading && !error && adminReservations.length === 0 && (
+          {!loading && !error && visibleReservations.length === 0 && (
             <div className="rounded-xl border border-stone-200 bg-white p-6 text-center shadow-sm sm:p-8">
               <h2 className="text-lg font-semibold text-stone-900">Nenhuma reserva encontrada</h2>
               <p className="mt-2 text-sm text-stone-600">
@@ -175,9 +203,9 @@ export function AdminReservationsPage() {
             </div>
           )}
 
-          {!loading && adminReservations.length > 0 && (
+          {!loading && visibleReservations.length > 0 && (
             <div className="grid items-stretch gap-4 lg:grid-cols-2">
-              {adminReservations.map((reservation) => {
+              {visibleReservations.map((reservation) => {
                 const isCancelled = reservation.status === 'CANCELLED'
 
                 return (

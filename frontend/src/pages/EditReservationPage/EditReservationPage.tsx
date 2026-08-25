@@ -2,30 +2,12 @@ import { startTransition, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Layout } from '../../components'
 import { useAuthStore, useReservationsStore, useRoomsStore } from '../../store'
-import { getDurationInMinutes, getToday } from '../../utils'
-
-function toDateInputValue(value: string) {
-  if (!value.includes('T')) {
-    return value
-  }
-
-  const date = new Date(value)
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
-    2,
-    '0',
-  )}-${String(date.getDate()).padStart(2, '0')}`
-}
-
-function toTimeInputValue(value: string) {
-  if (!value.includes('T')) {
-    return value
-  }
-
-  const date = new Date(value)
-  return `${String(date.getHours()).padStart(2, '0')}:${String(
-    date.getMinutes(),
-  ).padStart(2, '0')}`
-}
+import {
+  getDurationInMinutes,
+  getToday,
+  toDateInputValue,
+  toTimeInputValue,
+} from '../../utils'
 
 export function EditReservationPage() {
   const navigate = useNavigate()

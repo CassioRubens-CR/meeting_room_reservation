@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import * as api from '../../api'
@@ -204,5 +204,74 @@ describe('AdminReservationsPage extra states', () => {
     )
 
     expect(await screen.findByText('Cancelada')).toBeInTheDocument()
+  })
+
+  it('filters loaded reservations by user and clears the selection', async () => {
+    useAuthStore.setState({ user: adminUser })
+    vi.spyOn(api, 'fetchRooms').mockResolvedValue([mockRoom])
+    const reservationAdminUser = {
+      id: 'admin-1',
+      name: 'Admin User',
+      email: 'admin@example.com',
+      role: 'ADMIN' as const,
+    }
+    const reservations = [
+      {
+        id: 'reservation-admin',
+        date: '2026-08-25',
+        startTime: '2026-08-25T09:00:00.000Z',
+        endTime: '2026-08-25T10:00:00.000Z',
+        attendeesCount: 1,
+        status: 'CONFIRMED' as const,
+        userId: 'admin-1',
+        roomId: 'room-1',
+        createdAt: '2026-08-01T00:00:00.000Z',
+        updatedAt: '2026-08-01T00:00:00.000Z',
+        room: mockRoom,
+        user: reservationAdminUser,
+      },
+      {
+        id: 'reservation-user',
+        date: '2026-08-26',
+        startTime: '2026-08-25T10:00:00.000Z',
+        endTime: '2026-08-25T11:00:00.000Z',
+        attendeesCount: 1,
+        status: 'CONFIRMED' as const,
+        userId: 'user-1',
+        roomId: 'room-1',
+        createdAt: '2026-08-01T00:00:00.000Z',
+        updatedAt: '2026-08-01T00:00:00.000Z',
+        room: mockRoom,
+        user: baseUser,
+      },
+    ]
+    const fetchAllSpy = vi.spyOn(api, 'fetchAllReservations').mockResolvedValue(reservations)
+
+    render(
+      <MemoryRouter>
+        <AdminReservationsPage />
+      </MemoryRouter>,
+    )
+
+    await waitFor(() => expect(fetchAllSpy).toHaveBeenCalledTimes(1))
+    expect(screen.getByRole('option', { name: 'Admin User - admin@example.com' })).toBeInTheDocument()
+    expect(screen.getByRole('option', { name: 'Usuário Teste - teste@email.com' })).toBeInTheDocument()
+    expect(screen.getAllByRole('article')).toHaveLength(2)
+
+    fireEvent.change(screen.getByLabelText('Usuário'), { target: { value: 'admin-1' } })
+
+    await waitFor(() => {
+      const filteredCards = screen.getAllByRole('article')
+      expect(filteredCards).toHaveLength(1)
+      expect(within(filteredCards[0]).getByText('Admin User')).toBeInTheDocument()
+      expect(within(filteredCards[0]).queryByText('Usuário Teste')).not.toBeInTheDocument()
+    })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Limpar' }))
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('Usuário')).toHaveValue('')
+      expect(screen.getAllByRole('article')).toHaveLength(2)
+    })
   })
 })
