@@ -89,6 +89,21 @@ export function EditReservationPage() {
       return
     }
 
+    if (!date) {
+      setValidationError('Informe uma data para a reserva')
+      return
+    }
+
+    if (!startTime || !endTime) {
+      setValidationError('Informe os horários de início e término')
+      return
+    }
+
+    if (date < getToday()) {
+      setValidationError('Não é possível reservar uma data no passado')
+      return
+    }
+
     if (startTime >= endTime) {
       setValidationError('Horário de término deve ser após o início')
       return
@@ -167,7 +182,7 @@ export function EditReservationPage() {
             <h1 className="mt-1 text-2xl font-semibold text-stone-900">Atualizar horário</h1>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-5 pt-5">
+          <form onSubmit={handleSubmit} noValidate className="space-y-5 pt-5">
             {(validationError || error) && (
               <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
                 {validationError || error}
