@@ -254,8 +254,8 @@ describe('AdminReservationsPage extra states', () => {
     )
 
     await waitFor(() => expect(fetchAllSpy).toHaveBeenCalledTimes(1))
-    expect(await screen.findByRole('option', { name: 'Admin User - admin@example.com' })).toBeInTheDocument()
-    expect(screen.getByRole('option', { name: 'Usuário Teste - teste@email.com' })).toBeInTheDocument()
+    expect(await screen.findByRole('option', { name: 'Admin User' })).toBeInTheDocument()
+    expect(screen.getByRole('option', { name: 'Usuário Teste' })).toBeInTheDocument()
     expect(screen.getAllByRole('article')).toHaveLength(2)
 
     fireEvent.change(screen.getByLabelText('Usuário'), { target: { value: 'admin-1' } })
