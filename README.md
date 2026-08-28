@@ -1,6 +1,9 @@
 # Meeting Room Reservation
 
-Sistema web full-stack para gerenciamento e reserva de salas de reunião. Usuários podem criar uma conta, consultar salas disponíveis, realizar reservas e gerenciar seus próprios agendamentos. Administradores possuem recursos adicionais para gerenciar salas e realizar reservas com mais de um participante, informando uma justificativa.
+Sistema web full-stack corporativo para gerenciamento e reserva de salas de reunião.A aplicação resolve o problema de concorrência de espaços físicos em ambientes de trabalho, oferecendo fluxos com regras de negócio complexas tanto para colaboradores comuns quanto para administradores.
+
+Usuários podem criar uma conta, consultar salas disponíveis, realizar reservas e gerenciar seus próprios agendamentos. Administradores possuem recursos adicionais para gerenciar salas e realizar reservas com mais de um participante.
+
 
 ## O que o projeto oferece
 
