@@ -328,4 +328,13 @@ No momento, os dois lados estão bem acima do piso combinado (na casa dos 90%+ e
 
 Este projeto está sob a licença MIT. Veja o arquivo LICENSE para mais detalhes.
 
+
+## 📄 Licença e Uso
+
+Este é um projeto desenvolvido estritamente para fins de **desafio técnico e portfólio pessoal**. 
+
+O código é livre para estudos, consultas e inspiração. Caso queira utilizar alguma parte da arquitetura ou dos scripts automatizados no seu próprio projeto, sinta-se à vontade! Um "star" ⭐️ no repositório seria muito apreciado.
+
 ---
+
+<p align="center">Desenvolvido com ☕ e código por Cássio Rubens • Licença MIT © 2026</p>
