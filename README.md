@@ -41,6 +41,15 @@ User | user@example.com  | user1234567
 
 ## 📐 Decisões de Arquitetura & Tech Stack
 
+### 📦 Arquitetura Monorepo: Tudo em um só lugar
+
+Este projeto foi estruturado utilizando o padrão **Monorepo**. Em vez de isolar o ecossistema em repositórios separados, o Frontend e o Backend coexistem de forma harmoniosa nesta mesma estrutura. 
+
+#### 🌟 Por que Monorepo?
+*   **Single Source of Truth (Fonte Única de Verdade):** Todo o ciclo de vida da aplicação (da API à Interface UI) é rastreado em um único histórico de commits.
+*   **Orquestração Simplicada:** Automação total do ambiente local através de scripts unificados na raiz do projeto (`run.sh` / `run.ps1`), permitindo instalar e rodar os dois microsserviços em paralelo com um único comando.
+*   **Facilidade de Code Review:** Avaliadores técnicos e recrutadores conseguem analisar a consistência de ponta a ponta (Fullstack) sem precisar alternar entre abas ou repositórios diferentes no GitHub.
+
 ### Backend
 *   **NestJS & TypeScript:** Escolhido pela arquitetura modular baseada em injeção de dependências, garantindo escalabilidade, facilidade de testes unitários e aplicação natural dos princípios **SOLID**.
 *   **Prisma ORM + SQLite:** Agilidade na modelagem de dados e facilidade de portabilidade do ambiente com migrations estruturadas.
